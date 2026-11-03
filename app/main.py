@@ -1,17 +1,16 @@
 """FastAPI application entry point."""
 
-from fastapi import FastAPI
-from fastapi.responses import RedirectResponse
-from fastapi.responses import HTMLResponse
 from pathlib import Path
-from fastapi.staticfiles import StaticFiles
-from app.routers import design_system
 
-from app.routers import health, analyses
+from fastapi import FastAPI
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
+
+from app.routers import analyses, design_system, health
 
 app = FastAPI(
     title="CSV Check",
-    description="CSV quality reports. Step 1: project scaffold.",
+    description="Analyse de fichiers CSV et enregistrement des rapports.",
     version="0.1.0",
 )
 APP_DIR = Path(__file__).resolve().parent

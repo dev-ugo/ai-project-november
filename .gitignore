@@ -24,4 +24,5 @@ htmlcov/
 # Operating systems and delivery archive
 .DS_Store
 Thumbs.db
-csv-check-skeleton.zip
+
+*.zip

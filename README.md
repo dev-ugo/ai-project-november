@@ -40,7 +40,7 @@ Ce MVP est développé avec l’aide de l’IA dans le cadre d’un projet à r�
    .venv/bin/python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
    ```
 
-5. Ouvrir le port **8000** depuis l’onglet **Ports** de Codespaces. La racine `/` affiche le formulaire d’analyse une fois l’interface intégrée.
+5. Ouvrir le port **8000** depuis l’onglet **Ports** de Codespaces. La racine `/` affiche le formulaire d’analyse.
 
 La commande `app.init_db` crée les tables absentes. Elle ne met pas à jour la structure d’une table déjà existante.
 
@@ -148,6 +148,5 @@ Les rapports sont enregistrés, mais leur consultation dans un historique reste 
 ## Documentation et conventions
 
 - [Design system](docs/design-system.md)
-- [Interface d’analyse : intégration et vérification](docs/csv-upload-ui.md)
 
 La documentation et l’interface sont rédigées en français. Les noms de fichiers, variables, classes, champs de l’API et identifiants techniques restent en anglais lorsque c’est logique. Les commandes et les noms officiels des outils sont conservés.

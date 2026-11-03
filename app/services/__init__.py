@@ -1,1 +1,1 @@
-"""CSV analysis logic will be implemented here."""
+"""Logique d’analyse des fichiers CSV."""

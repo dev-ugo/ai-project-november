@@ -87,7 +87,6 @@ Un écran privilégie une action principale. Les actions secondaires utilisent u
 | `app/static/js/design-system.js` | Interactions locales de la page de référence |
 | `app/templates/design-system.html` | Page de référence utilisant les styles partagés |
 | `app/routers/design_system.py` | Route FastAPI `/design-system` |
-| `docs/design-system-preview.html` | Copie autonome pour consulter la référence hors ligne |
 | `docs/design-system.md` | Principes visuels, composants et utilisation |
 
 La page `/design-system` **n’appelle pas l’API**. Sa zone de dépôt vérifie uniquement l’extension et la taille du fichier pour la démonstration. Le bouton de chargement simule une requête et ne crée aucun rapport.
@@ -140,8 +139,6 @@ Ouvrir `/design-system` sur le port transféré, puis vérifier :
 - la navigation au clavier et les indicateurs de focus ;
 - la mise en page sur une fenêtre étroite ;
 - le fonctionnement de `/health` et `/docs`.
-
-Le fichier `docs/design-system-preview.html` peut aussi être ouvert directement dans un navigateur. Il s’agit d’une copie autonome de la référence : après une modification des styles ou des composants, cette copie doit être mise à jour séparément.
 
 Après un déploiement Render réussi, `/design-system` est également disponible sur l’URL hébergée.
 

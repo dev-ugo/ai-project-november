@@ -1,1 +1,1 @@
-"""Database models will be added in the database step."""
+"""Modèles de données de l’application."""
