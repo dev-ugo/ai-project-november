@@ -48,8 +48,12 @@ La commande peut être rejouée. Elle ne supprime aucune analyse et n’est pas 
 1. Créer un compte ou se connecter (mot de passe de 12 à 128 caractères).
 2. Choisir le fichier et son séparateur, puis lancer l’analyse.
 3. Lire les compteurs et les points à vérifier.
-4. Facultativement, demander **Recevoir le CSV corrigé par e-mail**.
+4. Facultativement, demander **Recevoir par e-mail**.
 5. Retrouver le rapport dans **Mon historique**, y compris après rechargement.
+
+Le parcours affiche un seul écran à la fois : connexion, analyse, résultat ou historique. La navigation principale comporte **Analyser** et **Historique** ; la déconnexion se trouve dans le menu **Compte**. Le détail des anomalies se déplie depuis le résultat.
+
+Les adresses `/#analysis`, `/#history` et `/#report/ID` permettent de retrouver un écran. Un lien de rapport reste privé : son ouverture nécessite le compte propriétaire. Le retour arrière du navigateur est pris en charge.
 
 Le fichier d’exemple contient 3 lignes de données, 1 doublon et 1 cellule vide.
 

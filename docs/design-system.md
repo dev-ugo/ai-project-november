@@ -164,10 +164,31 @@ Les envois réels utilisent `POST /analyses`, avec le fichier dans le champ mult
 
 Le JavaScript de démonstration reste limité à la page de référence. L’écran d’analyse gère ses propres requêtes, le chargement, les erreurs et l’affichage du rapport.
 
-## Comptes, historique privé et correction
+## Parcours de l’interface
 
-L’interface principale réutilise les cartes, champs et boutons pour la connexion et l’inscription. L’espace d’analyse reste masqué jusqu’à la vérification de la session. L’historique présente uniquement les rapports du compte connecté, dans un tableau défilant sur petit écran. Chaque ligne dispose d’un bouton « Ouvrir » avec un libellé accessible précisant le fichier.
+L’application affiche un seul écran principal à la fois :
 
-Le rapport propose « Recevoir le CSV corrigé par e-mail », en précisant l’adresse du destinataire et la règle : supprimer les doublons exacts, conserver les cellules vides. Le clic constitue la demande d’envoi ; aucune action automatique ne transmet un fichier à la fin de l’analyse. La confirmation indique une transmission au prestataire, sans promettre une réception finale.
+| Écran | Action principale | Informations secondaires |
+| --- | --- | --- |
+| Connexion ou inscription | Se connecter / créer son compte | Lien pour changer de mode, sans deux boutons de soumission concurrents |
+| Analyse | Choisir un CSV puis l’analyser | Séparateur compact et lien vers un exemple |
+| Résultat | Recevoir la version sans doublons par e-mail | Compteurs, détail des anomalies repliable, nouvelle analyse |
+| Historique | Ouvrir un rapport | Date, nombre de lignes et résumé des points à vérifier |
 
-Les messages de connexion, de chargement de l’historique et d’envoi utilisent des régions de statut. Les contrôles sont temporairement désactivés pendant une requête afin d’éviter les doubles actions. Une session expirée ramène à la connexion et efface les listes affichées. Les noms de fichiers sont insérés comme texte, jamais comme HTML.
+La navigation principale se limite à **Analyser** et **Historique**. Le menu **Compte** contient l’adresse connectée et la déconnexion. Les liens vers le design system et la documentation API sont dans le pied de page.
+
+Le résultat remplace le formulaire après une analyse réussie. L’historique est chargé uniquement lorsqu’il est ouvert ou actualisé. Les liens `#analysis`, `#history` et `#report/ID` permettent le retour arrière et la réouverture d’un rapport après rechargement, sous réserve d’une session autorisée.
+
+Sur mobile, les lignes de l’historique deviennent des cartes compactes ; le bouton « Ouvrir » reste visible sans déplacement horizontal. Le tableau détaillé des anomalies conserve son propre défilement horizontal.
+
+## États et accessibilité du parcours
+
+- Un seul titre `h1`, mis à jour avec l’écran actif. Le focus rejoint le titre lors d’un changement d’écran pour annoncer le nouveau contexte.
+- Les écrans inactifs utilisent `hidden` et ne restent pas dans le parcours clavier.
+- La navigation active utilise `aria-current`. Le menu du compte et le détail des anomalies utilisent des éléments HTML `details`/`summary` accessibles au clavier.
+- Le menu du compte se ferme au clic extérieur ou avec Échap. Dans ce dernier cas, le focus revient à son bouton.
+- Les messages de connexion, d’historique et d’e-mail sont des régions de statut. Les erreurs d’analyse sont des alertes.
+- Les contrôles sont désactivés pendant une requête pour éviter les doubles actions. Une session expirée efface les listes affichées et revient à la connexion.
+- Les noms de fichiers et de colonnes sont insérés comme texte, jamais comme HTML.
+
+Le bouton **Recevoir par e-mail** précise son destinataire et la règle de correction : retirer les doublons exacts, conserver les cellules vides. Aucun envoi n’est déclenché automatiquement. La confirmation indique la transmission au prestataire sans promettre la réception finale.
