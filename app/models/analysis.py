@@ -33,3 +33,6 @@ class Analysis(Base):
     corrected_csv: Mapped[bytes | None] = mapped_column(LargeBinary, deferred=True)
     correction_key: Mapped[str | None] = mapped_column(String(36), default=lambda: str(uuid4()))
     email_sent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+    guest_hash: Mapped[str | None] = mapped_column(String(64), index=True)
+    claim_email: Mapped[str | None] = mapped_column(String(254))

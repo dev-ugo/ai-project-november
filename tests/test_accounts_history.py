@@ -58,11 +58,12 @@ def test_csrf_required_for_every_mutation(client):
     assert client.post("/analyses/1/email").status_code == 403
 
 
-def test_anonymous_cannot_access_analyses(client):
-    assert upload(client).status_code == 401
+def test_anonymous_can_analyze_but_has_no_account_history(client):
+    report = upload(client).json()
     assert client.get("/analyses").status_code == 401
-    assert client.get("/analyses/1").status_code == 401
-    assert client.post("/analyses/1/email").status_code == 401
+    assert client.get(f"/analyses/{report['id']}").status_code == 200
+    assert client.get("/analyses/999").status_code == 404
+    assert client.post("/analyses/999/email").status_code == 404
 
 
 def test_private_history_and_legacy_reports(client, db):

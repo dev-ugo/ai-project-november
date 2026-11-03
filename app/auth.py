@@ -76,3 +76,30 @@ def get_current_user(request: Request) -> User:
         if user is None:
             raise HTTPException(401, "Votre session a expiré. Reconnectez-vous.")
         return user
+
+
+GUEST_COOKIE = "csv_check_guest"
+
+
+def get_optional_user(request: Request) -> User | None:
+    try:
+        return get_current_user(request)
+    except HTTPException as error:
+        if error.status_code != 401:
+            raise
+        return None
+
+
+def guest_digest(request: Request) -> str | None:
+    token = request.cookies.get(GUEST_COOKIE, "")
+    return token_digest(token) if 32 <= len(token) <= 128 else None
+
+
+def ensure_guest(request: Request, response: Response) -> str:
+    existing = guest_digest(request)
+    if existing:
+        return existing
+    token = secrets.token_urlsafe(32)
+    response.set_cookie(GUEST_COOKIE, token, max_age=7 * 86400, httponly=True,
+                        secure=COOKIE_SECURE, samesite="strict", path="/")
+    return token_digest(token)

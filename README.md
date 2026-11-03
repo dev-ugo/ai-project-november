@@ -6,11 +6,11 @@ Projet réalisé avec l’aide de l’IA dans le cadre d’un exercice de dével
 
 ## Fonctionnalités
 
-- Inscription, connexion et déconnexion par adresse e-mail et mot de passe.
+- Analyse immédiate sans connexion ; compte et connexion par lien e-mail, sans mot de passe.
 - Analyse de CSV UTF-8 de **1 Mio maximum**, séparés par une virgule ou un point-virgule.
 - Compteurs et détail des cellules vides et des doublons exacts.
-- Historique privé des **50 dernières analyses**, avec réouverture des rapports.
-- Envoi, sur demande, du CSV sans doublons à l’adresse du compte connecté.
+- Historique privé des **50 dernières analyses**, après confirmation de l’adresse e-mail.
+- Envoi, sur demande, d’une version corrigée et d’un lien personnel ; partage du lien public de l’outil.
 - Interface responsive, en français, et page de référence du design system.
 
 ## Technologies
@@ -19,7 +19,7 @@ Projet réalisé avec l’aide de l’IA dans le cadre d’un exercice de dével
 | --- | --- |
 | API | Python 3.12, FastAPI, Uvicorn |
 | Données | PostgreSQL, SQLAlchemy, Psycopg |
-| Authentification | Argon2 via pwdlib, sessions opaques en cookie HttpOnly |
+| Authentification | Liens e-mail à usage unique et sessions en cookie HttpOnly |
 | Interface | HTML, CSS, JavaScript sans framework |
 | E-mail | API HTTPS Resend |
 | Développement et hébergement | GitHub Codespaces, Render |
@@ -36,7 +36,7 @@ cp -n .env.example .env
 .venv/bin/python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-Ouvrir l’URL **HTTPS** du port 8000, créer un compte et importer le CSV d’exemple.
+Ouvrir l’URL **HTTPS** du port 8000 et importer un CSV sans créer de compte.
 Sur un accès local en HTTP uniquement, définir `COOKIE_SECURE=false` dans `.env`.
 Les variables déjà définies dans l’environnement ont priorité sur `.env`.
 
@@ -45,15 +45,15 @@ La commande peut être rejouée. Elle ne supprime aucune analyse et n’est pas 
 
 ## Utilisation et règles
 
-1. Créer un compte ou se connecter (mot de passe de 12 à 128 caractères).
-2. Choisir le fichier et son séparateur, puis lancer l’analyse.
-3. Lire les compteurs et les points à vérifier.
-4. Facultativement, demander **Recevoir par e-mail**.
-5. Retrouver le rapport dans **Mon historique**, y compris après rechargement.
+1. Choisir un CSV et son séparateur, puis lancer l’analyse, sans connexion.
+2. Lire immédiatement le résultat et les points à vérifier.
+3. Facultativement, saisir son adresse dans **Recevoir une version corrigée**.
+4. Recevoir le fichier et un lien personnel valable **15 minutes**.
+5. Ouvrir ce lien puis cliquer sur **Confirmer et accéder à mon espace** : le compte est créé ou retrouvé, et les rapports envoyés à cette adresse sont rattachés à son historique privé.
 
-Le parcours affiche un seul écran à la fois : connexion, analyse, résultat ou historique. La navigation principale comporte **Analyser** et **Historique** ; la déconnexion se trouve dans le menu **Compte**. Le détail des anomalies se déplie depuis le résultat.
+Le menu **Se connecter** envoie également un lien par e-mail. Aucun mot de passe n’est demandé dans l’interface. Le bouton **Partager CSV Check** copie uniquement l’adresse publique de l’outil, sans fichier, rapport ou jeton personnel.
 
-Les adresses `/#analysis`, `/#history` et `/#report/ID` permettent de retrouver un écran. Un lien de rapport reste privé : son ouverture nécessite le compte propriétaire. Le retour arrière du navigateur est pris en charge.
+Avant confirmation, un cookie secret permet de rouvrir le rapport dans le navigateur qui l’a importé. Connaître son identifiant ne donne aucun accès depuis un autre navigateur. Après confirmation, le rapport appartient au compte vérifié et n’est plus accessible par le seul cookie invité.
 
 Le fichier d’exemple contient 3 lignes de données, 1 doublon et 1 cellule vide.
 
@@ -68,27 +68,29 @@ La **correction supprime seulement les doublons exacts** et ignore les lignes vi
 | Méthode | Route | Accès et rôle |
 | --- | --- | --- |
 | `GET` | `/` | Interface publique, espace de travail après connexion |
-| `POST` | `/auth/register` | Inscription et ouverture de session |
-| `POST` | `/auth/login` | Connexion |
+| `POST` | `/auth/magic/request` | Recevoir un lien de connexion / création de compte |
+| `POST` | `/auth/magic/preview` | Afficher l’adresse à confirmer, sans consommer le lien |
+| `POST` | `/auth/magic/consume` | Confirmer, rattacher les rapports et ouvrir une session |
 | `GET` | `/auth/me` | Identité du compte connecté |
 | `POST` | `/auth/logout` | Révocation de la session |
-| `POST` | `/analyses` | Analyser un CSV pour le compte connecté |
+| `POST` | `/analyses` | Analyser un CSV, en invité ou connecté |
 | `GET` | `/analyses` | 50 derniers rapports du compte connecté |
-| `GET` | `/analyses/{id}` | Détail d’un rapport appartenant au compte |
-| `POST` | `/analyses/{id}/email` | Envoi de sa correction à l’adresse du compte |
+| `GET` | `/analyses/{id}` | Détail accessible au compte propriétaire ou au navigateur invité |
+| `POST` | `/analyses/{id}/email` | Correction et lien personnel en invité ; envoi au compte si connecté |
 | `GET` | `/health` | Disponibilité de l’application, sans contrôle de la base |
 | `GET` | `/docs` | Documentation interactive de l’API |
 | `GET` | `/design-system` | Référence des composants, sans appels API |
 
 Les routes `POST` exigent l’en-tête `X-CSRF-Protection: 1`. L’interface l’ajoute automatiquement. Dans `/docs`, saisir `1` dans ce champ. La connexion effectuée depuis la page `/` vaut aussi dans `/docs` sur la même origine. Aucune origine CORS externe n’est autorisée : ne pas ajouter une autorisation générale avec cookies.
 
-`POST /analyses` reçoit le champ multipart `file` et le paramètre de requête `delimiter` (`,` ou `;`). Il répond `201`. Sans session, les routes d’analyse répondent `401` ; un rapport absent ou appartenant à un autre compte répond `404`. Le destinataire d’un e-mail vient toujours du compte, jamais d’un paramètre de la requête.
+`POST /analyses` reçoit le champ multipart `file` et le paramètre de requête `delimiter` (`,` ou `;`). Il répond `201`. L’historique exige une session (`401`). Un rapport absent ou inaccessible répond `404`. En invité, la demande d’e-mail reçoit un JSON `{"email":"vous@exemple.ch"}` et exige le cookie secret du navigateur importateur. Connecté, le destinataire des rapports du compte reste l’adresse de ce compte.
 
 ## Base de données
 
 | Table | Contenu |
 | --- | --- |
-| `users` | Adresse unique normalisée en minuscules, mot de passe haché, date, compteur d’envois |
+| `users` | Adresse normalisée, confirmation, sessions ; ancien champ de mot de passe conservé pour compatibilité |
+| `magic_links` | Empreinte du lien, adresse, rapport éventuel, expiration et consommation |
 | `user_sessions` | Empreinte du jeton de session, propriétaire et expiration |
 | `analyses` | Propriétaire, nom de fichier, date, compteurs, anomalies JSON, CSV corrigé et date de transmission par e-mail |
 
@@ -110,9 +112,9 @@ Voir le [guide d’intégration](docs/auth-history-email.md) pour les étapes co
 | `EMAIL_FROM` | Expéditeur autorisé chez Resend |
 | `APP_URL` | URL publique de CSV Check, utilisée dans l’e-mail |
 
-Sans configuration e-mail, les comptes et analyses fonctionnent ; une demande d’envoi répond `503` avec un message explicite. Une transmission acceptée par Resend ne garantit pas la réception finale : vérifier les indésirables ou le tableau de bord du prestataire.
+Sans configuration e-mail, l’analyse invitée et les sessions déjà ouvertes fonctionnent ; les nouveaux accès par e-mail et les envois répondent `503` avec un message explicite. Une transmission acceptée par Resend ne garantit pas la réception finale : vérifier les indésirables ou le tableau de bord du prestataire.
 
-Un seul envoi confirmé est autorisé par analyse, et cinq tentatives par compte sur une fenêtre d’une heure. Une clé d’idempotence stable limite les doublons en cas de nouvelle tentative après un incident (garantie Resend limitée à 24 heures). L’envoi est synchrone, sans file de tâches ni relance automatique.
+Un seul envoi confirmé est autorisé pour un rapport de compte. En invité, un nouvel e-mail peut être demandé après une minute ; il invalide les anciens liens de ce rapport. Les demandes invitées sont limitées par adresse et IP dans la mémoire du processus, et les envois de comptes à cinq tentatives par heure en base. Pour les rapports déjà liés à un compte, une clé d’idempotence stable limite les doublons en cas de nouvelle tentative après un incident (garantie Resend limitée à 24 heures). L’envoi est synchrone, sans file de tâches ni relance automatique.
 
 Sur Render, conserver `pip install -r requirements.txt` comme commande de build et `bash scripts/start.sh` comme commande de démarrage. Le script prépare la base avant Uvicorn. Ajouter les variables e-mail dans **Environment**, puis déployer le commit. Le Blueprint transmet déjà `DATABASE_URL` et définit le cookie sécurisé.
 
@@ -142,13 +144,13 @@ Le premier déploiement peut prendre plus de temps pour installer Argon2. La bas
 
 Les tests utilisent une base SQLite temporaire et des réponses e-mail simulées : aucune donnée réelle n’est modifiée, aucun message n’est envoyé. Ils couvrent les sessions, la protection CSRF, les deux comptes distincts, les rapports sans propriétaire, les règles CSV, les pièces jointes et les échecs d’envoi. Ils ne reproduisent pas les verrous concurrents PostgreSQL ni la délivrabilité réelle.
 
-Tester aussi dans Codespaces puis sur Render : inscription, analyse de l’exemple, historique après rechargement, déconnexion, second compte sans accès au premier rapport, puis réception d’un e-mail réel après configuration. `/health`, `/docs` et `/design-system` doivent rester accessibles.
+Tester aussi dans Codespaces puis sur Render : analyse invitée, confidentialité entre deux navigateurs, réception de la correction, confirmation explicite, rattachement au compte et connexion ultérieure par e-mail. `/health`, `/docs` et `/design-system` doivent rester accessibles.
 
 ## Limites du projet pédagogique
 
 Le projet vérifie uniquement les cellules vides et doublons exacts, sans validation métier. L’interface affiche les 200 premières anomalies, les compteurs et le rapport restent complets.
 
-Cette version ne comprend pas encore la confirmation de propriété de l’adresse e-mail, la récupération du mot de passe, la suppression de compte ou la purge des fichiers. Les protections contre les tentatives de connexion répétées sont locales au processus, réinitialisées au redémarrage, et adaptées au lancement Uvicorn avec un seul processus. Ce n’est pas un service prêt pour une ouverture publique à grande échelle.
+La propriété de l’adresse est confirmée par un lien personnel à usage unique. Cette version ne comprend pas encore la suppression de compte ou la purge des fichiers. Les anciennes routes de mot de passe restent compatibles avec les anciens comptes ; à leur première confirmation par e-mail, leurs anciens mots de passe et sessions sont révoqués au profit du nouveau parcours. Les protections contre les tentatives de connexion répétées sont locales au processus, réinitialisées au redémarrage, et adaptées au lancement Uvicorn avec un seul processus. Ce n’est pas un service prêt pour une ouverture publique à grande échelle.
 
 ## Documentation et conventions
 
@@ -156,3 +158,12 @@ Cette version ne comprend pas encore la confirmation de propriété de l’adres
 - [Comptes, historique privé et e-mails](docs/auth-history-email.md)
 
 Interface et documentation en français ; identifiants techniques et messages de commit en anglais lorsque c’est logique.
+
+
+## Parcours invité et liens personnels
+
+Consulter [le guide de déploiement et de validation](docs/auth-history-email.md) avant d’installer cette évolution. `app.init_db` ajoute `guest_hash`, `claim_email`, `verified_at` et la table `magic_links` sans supprimer de rapport. Les anciennes analyses sans propriétaire restent masquées.
+
+Le compte n’est jamais créé au simple envoi d’un e-mail. Les jetons sont aléatoires, stockés sous forme d’empreintes, valables quinze minutes et à usage unique. Le lien est retiré de la barre d’adresse dès son ouverture ; la confirmation nécessite un bouton explicite. Confirmer une adresse invalide les liens précédents de cette adresse et rattache les rapports invités qui lui ont été envoyés.
+
+Les comptes sont réservés au service transactionnel : aucun abonnement marketing ni message à des tiers n’est ajouté. Le fichier et le lien personnel ne doivent pas être transférés ; partager seulement le lien public de l’outil.

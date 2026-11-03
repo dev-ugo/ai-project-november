@@ -170,9 +170,9 @@ L’application affiche un seul écran principal à la fois :
 
 | Écran | Action principale | Informations secondaires |
 | --- | --- | --- |
-| Connexion ou inscription | Se connecter / créer son compte | Lien pour changer de mode, sans deux boutons de soumission concurrents |
-| Analyse | Choisir un CSV puis l’analyser | Séparateur compact et lien vers un exemple |
-| Résultat | Recevoir la version sans doublons par e-mail | Compteurs, détail des anomalies repliable, nouvelle analyse |
+| Accès par e-mail | Recevoir mon lien | Aucun mot de passe ; création du compte à la confirmation |
+| Analyse, accessible sans compte | Choisir un CSV puis l’analyser | Séparateur compact et lien vers un exemple |
+| Résultat | Recevoir une version corrigée par e-mail | Compteurs, détail des anomalies repliable, nouvelle analyse |
 | Historique | Ouvrir un rapport | Date, nombre de lignes et résumé des points à vérifier |
 
 La navigation principale se limite à **Analyser** et **Historique**. Le menu **Compte** contient l’adresse connectée et la déconnexion. Les liens vers le design system et la documentation API sont dans le pied de page.
@@ -191,4 +191,13 @@ Sur mobile, les lignes de l’historique deviennent des cartes compactes ; le bo
 - Les contrôles sont désactivés pendant une requête pour éviter les doubles actions. Une session expirée efface les listes affichées et revient à la connexion.
 - Les noms de fichiers et de colonnes sont insérés comme texte, jamais comme HTML.
 
-Le bouton **Recevoir par e-mail** précise son destinataire et la règle de correction : retirer les doublons exacts, conserver les cellules vides. Aucun envoi n’est déclenché automatiquement. La confirmation indique la transmission au prestataire sans promettre la réception finale.
+Le formulaire **Recevoir une version corrigée** précise son destinataire et la règle de correction : retirer les doublons exacts, conserver les cellules vides. Aucun envoi n’est déclenché automatiquement. La confirmation indique la transmission au prestataire sans promettre la réception finale.
+
+
+## Parcours invité
+
+L’arrivée affiche directement le formulaire d’analyse. Dans le résultat, l’adresse e-mail n’est demandée qu’au moment de recevoir la correction. Le texte annonce que l’e-mail contient aussi un accès à un espace privé, créé seulement après confirmation.
+
+L’écran de confirmation affiche l’adresse concernée et un bouton explicite. Une visite automatique du lien ne crée pas de session. L’historique reste réservé aux comptes connectés ; les erreurs d’envoi restent affichées à côté du formulaire.
+
+Le bouton **Partager CSV Check** copie l’adresse publique de l’outil et indique que les rapports restent privés. Il ne partage jamais le fichier ou le lien de connexion.

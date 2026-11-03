@@ -13,7 +13,12 @@
   let busy = false;
   let ready = false;
   let pendingRoute = false;
-  let authMode = "login";
+  let magicToken = null;
+  const incoming = window.location.hash.match(/^#verify\/([A-Za-z0-9_-]{40,128})$/);
+  if (incoming) {
+    magicToken = incoming[1];
+    window.history.replaceState(null, "", "#verify");
+  }
 
   function status(id, message = "", error = false) {
     $(id).textContent = message;
@@ -21,16 +26,20 @@
   }
 
   function showView(view, focus = true) {
-    if (!user) view = "auth";
+    if (!user && view === "history") view = "auth";
     $("main").dataset.view = view;
     $("account").hidden = view !== "auth";
-    $("private-workspace").hidden = !user;
-    $("account-connected").hidden = !user;
+    $("private-workspace").hidden = ["auth", "verify"].includes(view);
+    $("verify-view").hidden = view !== "verify";
+    $("account-connected").hidden = false;
+    $("account-menu").hidden = !user;
+    $("guest-login").hidden = Boolean(user);
     $("upload-view").hidden = view !== "analysis";
     $("history").hidden = view !== "history";
     $("analysis-results").hidden = view !== "report";
     const headings = {
-      auth: ["Un CSV plus clair.", "Repérez les doublons et les cellules vides, en quelques secondes."],
+      auth: ["Retrouver mes analyses", "Un lien par e-mail suffit pour accéder à votre espace privé."],
+      verify: ["Confirmer mon adresse", "Votre accès personnel à CSV Check."],
       analysis: ["Analyser un fichier", "Ajoutez votre CSV. Nous repérons les doublons et les cellules vides."],
       report: ["Votre résultat", ""],
       history: ["Vos analyses", "Vos 50 derniers rapports, visibles uniquement par vous."]
@@ -54,12 +63,12 @@
   function setBusy(value, action = "") {
     busy = value;
     document.querySelectorAll("button, input, select").forEach(control => { control.disabled = value; });
-    $("analyze-button").disabled = value || !selectedFile || !user;
-    $("email-report-button").disabled = value || !report?.correction_available || Boolean(report?.email_sent_at);
+    $("analyze-button").disabled = value || !selectedFile;
+    $("email-report-button").disabled = value || !report?.correction_available || Boolean(user && report?.email_sent_at);
     $("analyze-spinner").hidden = !(value && action === "analysis");
     $("analyze-label").textContent = value && action === "analysis" ? "Analyse en cours…" : "Analyser le fichier";
-    $("auth-submit").textContent = value && action === "account" ? "Veuillez patienter…" : authMode === "register" ? "Créer mon compte" : "Se connecter";
-    $("email-report-button").textContent = value && action === "email" ? "Envoi en cours…" : report?.email_sent_at ? "E-mail demandé" : "Recevoir par e-mail";
+    $("auth-submit").textContent = value && action === "account" ? "Envoi en cours…" : "Recevoir mon lien";
+    $("email-report-button").textContent = value && action === "email" ? "Envoi en cours…" : report?.email_sent_at ? (user ? "E-mail demandé" : "Renvoyer l’e-mail") : "Recevoir ma version corrigée";
     $("csv-dropzone").setAttribute("aria-disabled", String(value));
     $("csv-form").setAttribute("aria-busy", String(value && action === "analysis"));
     $("auth-form").setAttribute("aria-busy", String(value && action === "account"));
@@ -79,7 +88,7 @@
     setBusy(true, action);
     try { await task(); }
     catch (error) {
-      const target = !user ? "account-status" : errorTarget;
+      const target = $("main").dataset.view === "auth" ? "account-status" : errorTarget;
       status(target, error.message, true);
       if (target === "global-error") $(target).hidden = false;
     } finally { setBusy(false); }
@@ -99,7 +108,7 @@
         catch (error) { if (controller.signal.aborted) throw error; }
       }
       if (!response.ok) {
-        if (response.status === 401 && path !== "/auth/login") setUser(null);
+        if (response.status === 401) { setUser(null); showView("auth"); }
         const message = path.startsWith("/analyses?") ? apiError(response.status, data?.detail)
           : typeof data?.detail === "string" ? data.detail
           : response.status >= 500 ? "Le serveur est indisponible. Réessayez dans quelques instants."
@@ -137,7 +146,7 @@
   }
 
   function chooseFile(file) {
-    if (busy || !user || !file) return;
+    if (busy || !file) return;
     clearFileError();
     selectedFile = null;
     let message = "";
@@ -164,7 +173,6 @@
 
   function setUser(value) {
     user = value;
-    if (!user) setAuthMode("login");
     report = null;
     resetFile();
     $("history-body").replaceChildren();
@@ -172,13 +180,11 @@
     $("history-table-region").hidden = true;
     $("history-empty").hidden = true;
     $("account-email").textContent = user?.email || "";
-    $("auth-password").value = "";
-    $("auth-form").hidden = Boolean(user);
-    $("auth-switch-row").hidden = Boolean(user);
+
     status("account-status");
     status("history-status");
     status("email-status");
-    showView(user ? "analysis" : "auth", false);
+    showView("analysis", false);
   }
   function apiError(status, detail) {
     const messages = {
@@ -219,7 +225,7 @@
     const date = new Date(report.created_at);
     $("report-date").dateTime = date.toISOString();
     $("report-date").textContent = dateFormat.format(date);
-    $("saved-label").textContent = "Enregistré dans votre historique";
+    $("saved-label").textContent = user ? "Enregistré dans votre historique" : "Résultat privé dans ce navigateur";
     for (const key of ["row", "duplicate", "empty-cell"]) {
       $(key + "-count").textContent = numberFormat.format(report[key.replaceAll("-", "_") + "_count"]);
     }
@@ -247,8 +253,12 @@
     $("findings-body").replaceChildren(rows);
     $("findings-limit").hidden = total <= MAX_VISIBLE_FINDINGS;
     $("findings-limit").textContent = `Les ${MAX_VISIBLE_FINDINGS} premiers points sur ${numberFormat.format(total)} sont affichés.`;
-    $("email-recipient").textContent = user.email;
-    status("email-status", report.email_sent_at ? "Fichier transmis au service d’e-mail. Vérifiez aussi vos indésirables."
+    $("email-recipient").textContent = user?.email || "";
+    $("guest-email-field").hidden = Boolean(user);
+    $("email-input").required = !user;
+    $("member-email-field").hidden = !user;
+    $("email-explanation").hidden = Boolean(user);
+    status("email-status", report.email_sent_at ? (user ? "Fichier transmis au service d’e-mail. Vérifiez aussi vos indésirables." : "Consultez votre e-mail et confirmez votre adresse pour retrouver ce rapport dans votre espace. Pour renvoyer l’e-mail, attendez une minute.")
       : report.correction_available ? "" : "Réimportez ce fichier pour recevoir une version corrigée.");
     showView("report");
   }
@@ -304,8 +314,21 @@
   function route() {
     if (!ready) return;
     if (busy) { pendingRoute = true; return; }
-    if (!user) { showView("auth"); return; }
     const hash = window.location.hash;
+    if (hash === "#verify") {
+      showView("verify");
+      if (!magicToken) {
+        status("verify-status", "Rouvrez le lien reçu par e-mail ou demandez un nouveau lien.", true);
+        $("verify-button").disabled = true;
+        return;
+      }
+      run("account", async () => {
+        const identity = await api("/auth/magic/preview", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({token: magicToken})});
+        $("verify-address").textContent = `Continuer avec ${identity.email}`;
+      }, "verify-status");
+      return;
+    }
+    if (hash === "#account" || (hash === "#history" && !user)) { showView("auth"); return; }
     if (hash === "#history") {
       showView("history");
       run("history", loadHistory, "history-status");
@@ -315,8 +338,8 @@
     if (match && Number.isSafeInteger(Number(match[1])) && Number(match[1]) > 0) {
       const id = Number(match[1]);
       if (report?.id === id) { renderReport(report); setBusy(false); return; }
-      showView("history");
-      status("history-status", "Ouverture du rapport…");
+      showView("report");
+      status("global-error", "Ouverture du rapport…");
       run("history", async () => {
         try {
           const result = await api(`/analyses/${id}`);
@@ -324,10 +347,13 @@
           renderReport(result);
         } catch (error) {
           // Un rapport indisponible mène à un écran avec des actions de navigation.
-          if (!pendingRoute) window.history.replaceState(null, "", "#history");
+          if (!pendingRoute) {
+            window.history.replaceState(null, "", user ? "#history" : "#analysis");
+            showView(user ? "history" : "analysis");
+          }
           throw error;
         }
-      }, "history-status");
+      }, "global-error");
       return;
     }
     if (hash !== "#analysis") window.history.replaceState(null, "", "#analysis");
@@ -352,36 +378,26 @@
     }
   });
 
-  function setAuthMode(mode) {
-    authMode = mode;
-    const registration = mode === "register";
-    $("account-heading").textContent = registration ? "Créer un compte" : "Connexion";
-    $("auth-description").textContent = registration ? "Un compte pour garder vos rapports privés." : "Retrouvez vos analyses dans votre espace privé.";
-    $("auth-switch-label").textContent = registration ? "Déjà un compte ?" : "Pas encore de compte ?";
-    $("auth-switch").textContent = registration ? "Se connecter" : "Créer un compte";
-    $("auth-password").autocomplete = registration ? "new-password" : "current-password";
-    $("password-help").hidden = !registration;
-  }
-
-  $("auth-switch").addEventListener("click", () => {
-    if (busy) return;
-    setAuthMode(authMode === "login" ? "register" : "login");
-    status("account-status");
-    setBusy(false);
-    $("auth-email").focus();
-  });
-
   $("auth-form").addEventListener("submit", event => {
     event.preventDefault();
     run("account", async () => {
-      status("account-status");
-      const identity = await api(`/auth/${authMode}`, {
+      const result = await api("/auth/magic/request", {
         method: "POST", headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({email: $("auth-email").value.trim(), password: $("auth-password").value})
+        body: JSON.stringify({email: $("auth-email").value.trim()})
       });
-      setUser(identity);
-      pendingRoute = true;
+      status("account-status", result.message);
     }, "account-status");
+  });
+
+  $("verify-button").addEventListener("click", () => {
+    if (!magicToken) return;
+    run("account", async () => {
+      const result = await api("/auth/magic/consume", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({token: magicToken})});
+      magicToken = null;
+      setUser(result);
+      window.history.replaceState(null, "", result.analysis_id ? `#report/${result.analysis_id}` : "#history");
+      pendingRoute = true;
+    }, "verify-status");
   });
 
   $("logout-button").addEventListener("click", () => run("account", async () => {
@@ -389,7 +405,7 @@
     setUser(null);
     window.history.replaceState(null, "", "#analysis");
     status("account-status", "Vous êtes déconnecté.");
-    showView("auth");
+    showView("analysis");
   }, "global-error"));
 
   $("csv-file").addEventListener("change", () => chooseFile($("csv-file").files[0]));
@@ -420,7 +436,7 @@
 
   $("csv-form").addEventListener("submit", event => {
     event.preventDefault();
-    if (!user || !selectedFile) return;
+    if (!selectedFile) return;
     run("analysis", async () => {
       clearFileError();
       status("request-status", "Analyse en cours. Vous retrouverez le résultat dans votre historique.");
@@ -434,7 +450,7 @@
         if (!pendingRoute) window.history.pushState(null, "", `#report/${result.id}`);
       } catch (error) {
         status("request-status");
-        if (user) {
+        if (error.status !== 401) {
           $("error-message").textContent = error.message;
           $("form-error").hidden = false;
         } else throw error;
@@ -443,21 +459,34 @@
   });
 
   $("refresh-history").addEventListener("click", () => run("history", loadHistory, "history-status"));
-  $("email-report-button").addEventListener("click", () => {
-    if (!user || !report || report.email_sent_at || !report.correction_available) return;
+  $("email-form").addEventListener("submit", event => {
+    event.preventDefault();
+    if (!report || (user && report.email_sent_at) || !report.correction_available) return;
     run("email", async () => {
       status("email-status", "Envoi du fichier…");
-      const result = await api(`/analyses/${report.id}/email`, {method: "POST"});
+      const result = await api(`/analyses/${report.id}/email`, {
+        method: "POST", headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({email: user?.email || $("email-input").value.trim()})
+      });
       report.email_sent_at = result.email_sent_at;
       status("email-status", result.message);
     }, "email-status");
+  });
+  $("share-button").addEventListener("click", async () => {
+    const publicUrl = `${window.location.origin}/`;
+    try {
+      await navigator.clipboard.writeText(publicUrl);
+      status("share-status", "Lien de l’outil copié. Vos rapports restent privés.");
+    } catch {
+      status("share-status", `Partagez ce lien : ${publicUrl}`);
+    }
   });
 
   run("account", async () => {
     try { setUser(await api("/auth/me")); }
     catch (error) {
       setUser(null);
-      if (error.status !== 401) status("account-status", error.message, true);
+      if (error.status !== 401) { status("global-error", error.message, true); $("global-error").hidden = false; }
     }
     ready = true;
     pendingRoute = true;

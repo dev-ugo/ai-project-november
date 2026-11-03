@@ -31,7 +31,7 @@ def send_corrected_csv(analysis: Analysis, recipient: str) -> None:
     payload = {
         "from": sender,
         "to": [recipient],
-        "subject": f"CSV Check — votre fichier sans doublons (rapport #{analysis.id})",
+        "subject": f"CSV Check — votre version corrigée (rapport #{analysis.id})",
         "text": (
             "Bonjour,\n\n"
             "Voici votre CSV après suppression des doublons exacts.\n"
@@ -50,12 +50,17 @@ def send_corrected_csv(analysis: Analysis, recipient: str) -> None:
             "content": base64.b64encode(analysis.corrected_csv).decode("ascii"),
         }],
     }
+    deliver(payload, f"csv-check-{analysis.correction_key}")
+
+
+def deliver(payload: dict, idempotency_key: str) -> None:
+    key, _, _ = ensure_email_configured()
     try:
         response = httpx.post(
             "https://api.resend.com/emails", json=payload,
             headers={
                 "Authorization": f"Bearer {key}",
-                "Idempotency-Key": f"csv-check-{analysis.correction_key}",
+                "Idempotency-Key": idempotency_key,
             },
             timeout=15,
         )
@@ -68,3 +73,34 @@ def send_corrected_csv(analysis: Analysis, recipient: str) -> None:
         raise EmailDeliveryError(
             "L’envoi n’a pas pu être confirmé. Vérifiez votre messagerie avant de réessayer."
         ) from error
+
+
+
+def send_access_email(recipient: str, token: str, analysis: Analysis | None = None) -> None:
+    """Le lien personnel est dans le fragment ; il n’est pas envoyé dans les logs HTTP."""
+    import hashlib
+    from html import escape
+
+    _, sender, url = ensure_email_configured()
+    link = f"{url}/#verify/{token}"
+    text = "Confirmez votre adresse pour créer votre espace CSV Check ou retrouver votre historique privé."
+    if analysis:
+        text = (f"Votre version corrigée est jointe : {analysis.duplicate_count} doublon(s) exact(s) supprimé(s). "
+                "Les cellules vides restent à compléter ; aucune valeur n’a été inventée.")
+    payload = {
+        "from": sender, "to": [recipient],
+        "subject": "CSV Check — votre version corrigée et votre accès" if analysis else "CSV Check — votre lien de connexion",
+        "text": (f"Bonjour,\n\n{text}\n\nConfirmer mon adresse et accéder à mon espace :\n{link}\n\n"
+                 f"Lien personnel valable 15 minutes, à usage unique. Ne le partagez pas.\n\n"
+                 f"Pour faire découvrir l’outil, partagez uniquement ce lien public : {url}/\n"
+                 "Si vous n’êtes pas à l’origine de cette demande, ignorez cet e-mail."),
+        "html": (f"<p>Bonjour,</p><p>{escape(text)}</p>"
+                 f'<p><a href="{escape(link, quote=True)}">Confirmer mon adresse et accéder à mon espace</a></p>'
+                 '<p>Lien personnel valable 15 minutes, à usage unique. Ne le partagez pas.</p>'
+                 f'<p>Pour faire découvrir l’outil : <a href="{escape(url, quote=True)}/">Partager CSV Check</a></p>'
+                 '<p>Si vous n’êtes pas à l’origine de cette demande, ignorez cet e-mail.</p>'),
+    }
+    if analysis:
+        payload["attachments"] = [{"filename": f"analyse-{analysis.id}-corrigee.csv",
+                                    "content": base64.b64encode(analysis.corrected_csv).decode("ascii")}]
+    deliver(payload, "access-" + hashlib.sha256(token.encode()).hexdigest())
