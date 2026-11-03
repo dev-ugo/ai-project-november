@@ -1,0 +1,31 @@
+services:
+  app:
+    image: mcr.microsoft.com/devcontainers/python:1-3.12-bookworm
+    volumes:
+      - ../..:/workspaces:cached
+    command: sleep infinity
+    environment:
+      # Development credentials only. The API will use this in the next step.
+      DATABASE_URL: postgresql+psycopg://csvcheck:csvcheck_dev@db:5432/csvcheck
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: csvcheck
+      POSTGRES_USER: csvcheck
+      POSTGRES_PASSWORD: csvcheck_dev
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U csvcheck -d csvcheck"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+volumes:
+  postgres-data:

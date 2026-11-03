@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+build/
+dist/
+
+# Local configuration and data
+.env
+.env.*
+!.env.example
+*.db
+*.sqlite3
+uploads/
+
+# Tool caches and coverage
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Operating systems and delivery archive
+.DS_Store
+Thumbs.db
+csv-check-skeleton.zip
