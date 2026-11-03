@@ -92,3 +92,25 @@ def list_analyses() -> list[dict]:
             }
             for analysis in analyses
         ]
+
+@router.get("/{analysis_id}")
+def get_analysis(analysis_id: int) -> dict:
+    """Consulter une analyse enregistrée et ses anomalies."""
+    with Session(engine) as session:
+        analysis = session.get(Analysis, analysis_id)
+
+        if analysis is None:
+            raise HTTPException(
+                status_code=404,
+                detail="Analyse introuvable.",
+            )
+
+        return {
+            "id": analysis.id,
+            "filename": analysis.filename,
+            "created_at": analysis.created_at,
+            "row_count": analysis.row_count,
+            "duplicate_count": analysis.duplicate_count,
+            "empty_cell_count": analysis.empty_cell_count,
+            "anomalies": analysis.anomalies,
+        }
