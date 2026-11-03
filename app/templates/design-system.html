@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Couleurs, typographie et composants du design system CSV Check.">
+  <title>Design system · CSV Check</title>
+  <link rel="stylesheet" href="/static/css/design-system.css">
+  <script src="/static/js/design-system.js" defer></script>
+</head>
+<body>
+  <a class="cc-skip" href="#main">Aller au contenu</a>
+  <header class="cc-topbar">
+    <div class="cc-topbar__inner">
+      <a class="cc-brand" href="#main" aria-label="CSV Check, haut de page">
+        <span class="cc-brand__mark" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 3v18M13 15l2 2 4-4"/></svg></span>
+        CSV Check
+      </a>
+      <div class="cc-row"><span class="cc-small cc-muted cc-topbar__detail">Référence visuelle</span><span class="cc-badge cc-badge--info">Design system · v0.1</span></div>
+    </div>
+  </header>
+  <div class="cc-layout">
+    <aside class="cc-sidebar">
+      <p class="cc-eyebrow cc-sidebar__label">Dans cette page</p>
+      <nav class="cc-nav" aria-label="Sections du design system">
+        <a href="#foundations" aria-current="location">Fondations <span class="cc-nav__number">01</span></a>
+        <a href="#actions">Actions <span class="cc-nav__number">02</span></a>
+        <a href="#forms">Formulaires <span class="cc-nav__number">03</span></a>
+        <a href="#feedback">Messages <span class="cc-nav__number">04</span></a>
+        <a href="#reports">Rapports <span class="cc-nav__number">05</span></a>
+      </nav>
+      <p class="cc-sidebar__note">Une même base pour analyser un fichier et retrouver ses rapports.</p>
+    </aside>
+    <main class="cc-main" id="main" tabindex="-1">
+      <div class="cc-hero">
+        <p class="cc-eyebrow">CSV Check / Identité & composants</p>
+        <h1>Design system</h1>
+        <p>Une interface claire pour comprendre ses données. Des composants simples, des états explicites et une action principale par écran.</p>
+        <div class="cc-row cc-hero__meta"><span class="cc-badge cc-badge--neutral">Thème clair</span><span class="cc-small cc-muted">Police système · Grille de 4 px · Responsive</span></div>
+      </div>
+
+      <section class="cc-section" id="foundations" aria-labelledby="foundations-title">
+        <div class="cc-section__head"><div class="cc-section__title"><span class="cc-section__index" aria-hidden="true">01</span><h2 id="foundations-title">Fondations</h2></div><span class="cc-section__caption">La couleur accompagne le sens.</span></div>
+        <div class="cc-card cc-card__body">
+          <div class="cc-palette">
+            <div class="cc-swatch"><div class="cc-swatch__color" style="--cc-swatch:var(--cc-primary)"></div><strong>Action</strong><code>#1D4ED8</code></div>
+            <div class="cc-swatch"><div class="cc-swatch__color" style="--cc-swatch:var(--cc-text)"></div><strong>Texte</strong><code>#182230</code></div>
+            <div class="cc-swatch"><div class="cc-swatch__color" style="--cc-swatch:var(--cc-success)"></div><strong>Confirmation</strong><code>#166534</code></div>
+            <div class="cc-swatch"><div class="cc-swatch__color" style="--cc-swatch:var(--cc-warning)"></div><strong>À vérifier</strong><code>#92400E</code></div>
+            <div class="cc-swatch"><div class="cc-swatch__color" style="--cc-swatch:var(--cc-danger)"></div><strong>Erreur</strong><code>#B42318</code></div>
+          </div>
+        </div>
+        <div class="cc-foundation-grid">
+          <div class="cc-card cc-card__body">
+            <p class="cc-eyebrow">Typographie / Police système</p>
+            <div class="cc-type-sample"><p class="cc-type-preview">Un rapport lisible.</p><p class="cc-small cc-muted">Titre de section · 24 px · Semi-gras</p></div>
+            <div class="cc-type-sample"><p>Vos données, avec les points à vérifier.</p><p class="cc-small cc-muted">Texte courant · 16 px · Interligne 1,6</p></div>
+            <div class="cc-type-sample"><p class="cc-small">CSV UTF-8 · 1 Mio maximum</p><p class="cc-help">Libellés 14 px · Métadonnées 12 px</p></div>
+          </div>
+          <div class="cc-card cc-card__body">
+            <p class="cc-eyebrow">Espacement / Multiple de 4</p>
+            <div class="cc-spacing" aria-label="Espacements : 4, 8, 12, 16, 24 et 32 pixels">
+              <div class="cc-spacing__sample"><span class="cc-spacing__bar" style="--cc-size:4px"></span>4</div>
+              <div class="cc-spacing__sample"><span class="cc-spacing__bar" style="--cc-size:8px"></span>8</div>
+              <div class="cc-spacing__sample"><span class="cc-spacing__bar" style="--cc-size:12px"></span>12</div>
+              <div class="cc-spacing__sample"><span class="cc-spacing__bar" style="--cc-size:16px"></span>16</div>
+              <div class="cc-spacing__sample"><span class="cc-spacing__bar" style="--cc-size:24px"></span>24</div>
+              <div class="cc-spacing__sample"><span class="cc-spacing__bar" style="--cc-size:32px"></span>32</div>
+            </div>
+            <p class="cc-eyebrow" style="margin-top:2rem">Arrondis</p>
+            <div class="cc-radius-samples"><span style="border-radius:8px">8 px</span><span style="border-radius:12px">12 px</span><span style="border-radius:16px">16 px</span></div>
+            <p class="cc-component-note">8 px pour les contrôles · 12 px pour les cartes.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="cc-section" id="actions" aria-labelledby="actions-title">
+        <div class="cc-section__head"><div class="cc-section__title"><span class="cc-section__index" aria-hidden="true">02</span><h2 id="actions-title">Actions</h2></div><span class="cc-section__caption">Une hiérarchie, quatre états.</span></div>
+        <div class="cc-card cc-card__body">
+          <div class="cc-row">
+            <button class="cc-btn cc-btn--primary" id="demo-analyze" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg><span>Analyser le fichier</span></button>
+            <button class="cc-btn cc-btn--secondary" id="demo-reset" type="button">Réinitialiser</button>
+            <a class="cc-btn cc-btn--quiet" href="#reports">Voir un rapport <span aria-hidden="true">↗</span></a>
+            <button class="cc-btn" type="button" disabled>Indisponible</button>
+          </div>
+          <p class="cc-component-note" id="demo-action-status" role="status">Démonstration : le bouton principal simule un chargement, sans envoi de fichier.</p>
+        </div>
+        <div class="cc-card cc-card__body" style="margin-top:1rem">
+          <div class="cc-row"><span class="cc-badge cc-badge--neutral">En attente</span><span class="cc-badge cc-badge--info">Analyse en cours</span><span class="cc-badge cc-badge--success"><span aria-hidden="true">✓</span> Rapport enregistré</span><span class="cc-badge cc-badge--warning"><span aria-hidden="true">!</span> Points à vérifier</span><span class="cc-badge cc-badge--danger"><span aria-hidden="true">×</span> Analyse impossible</span></div>
+        </div>
+      </section>
+
+      <section class="cc-section" id="forms" aria-labelledby="forms-title">
+        <div class="cc-section__head"><div class="cc-section__title"><span class="cc-section__index" aria-hidden="true">03</span><h2 id="forms-title">Formulaires</h2></div><span class="cc-section__caption">Des libellés et une aide, à chaque étape.</span></div>
+        <div class="cc-grid-2">
+          <div class="cc-card cc-card__body">
+            <input class="cc-sr-only" type="file" id="demo-file" accept=".csv,text/csv" aria-describedby="upload-help upload-status">
+            <label class="cc-dropzone" id="demo-dropzone" for="demo-file">
+              <span class="cc-dropzone__icon" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4m-4 4 4-4 4 4M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/></svg></span>
+              <span class="cc-dropzone__title" id="upload-title">Déposez votre fichier CSV ici</span>
+              <span class="cc-dropzone__help" id="upload-help">UTF-8 · Virgule ou point-virgule · 1 Mio maximum</span>
+              <span class="cc-btn cc-btn--primary">Choisir un fichier</span>
+            </label>
+            <p class="cc-upload-status" id="upload-status" role="status">Démonstration locale : aucun fichier n’est envoyé.</p>
+          </div>
+          <div class="cc-card cc-card__body">
+            <div class="cc-field"><label class="cc-label" for="demo-delimiter">Séparateur</label><select class="cc-select" id="demo-delimiter" aria-describedby="delimiter-help"><option value=",">Virgule (,)</option><option value=";">Point-virgule (;)</option></select><p class="cc-help" id="delimiter-help">Choisissez le séparateur utilisé dans votre fichier.</p></div>
+            <div class="cc-field"><label class="cc-label" for="demo-filename">Nom du fichier</label><input class="cc-input" id="demo-filename" value="contacts.csv" readonly><p class="cc-help">Un fichier sélectionné met cet exemple à jour.</p></div>
+            <div class="cc-field"><label class="cc-label" for="invalid-filename">Exemple d’erreur de format</label><input class="cc-input" id="invalid-filename" value="contacts.pdf" readonly aria-invalid="true" aria-describedby="filename-error"><p class="cc-error" id="filename-error">Choisissez un fichier avec l’extension .csv.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="cc-section" id="feedback" aria-labelledby="feedback-title">
+        <div class="cc-section__head"><div class="cc-section__title"><span class="cc-section__index" aria-hidden="true">04</span><h2 id="feedback-title">Messages</h2></div><span class="cc-section__caption">Dire ce qui s’est passé et quoi faire.</span></div>
+        <div class="cc-card cc-card__body cc-stack">
+          <div class="cc-alert cc-alert--success"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg><div><strong>Votre rapport est enregistré.</strong>Vous pourrez le retrouver dans vos analyses précédentes.</div></div>
+          <div class="cc-alert cc-alert--warning"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m12 3 10 18H2L12 3Z"/><path d="M12 9v4m0 3v1"/></svg><div><strong>Deux points à vérifier.</strong>Une cellule vide et un doublon ont été repérés. Vérifiez leur contexte avant de modifier le fichier.</div></div>
+          <div class="cc-alert cc-alert--danger"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v6m0 3v1"/></svg><div><strong>Le fichier ne peut pas être analysé.</strong>Réexportez-le au format CSV UTF-8, puis réessayez.</div></div>
+        </div>
+      </section>
+
+      <section class="cc-section" id="reports" aria-labelledby="reports-title">
+        <div class="cc-section__head"><div class="cc-section__title"><span class="cc-section__index" aria-hidden="true">05</span><h2 id="reports-title">Rapports</h2></div><span class="cc-badge cc-badge--neutral">Données d’exemple</span></div>
+        <div class="cc-stats">
+          <div class="cc-card cc-stat"><p class="cc-stat__label">Lignes analysées</p><strong class="cc-stat__value">3</strong><span class="cc-stat__hint">En-tête exclu</span></div>
+          <div class="cc-card cc-stat"><p class="cc-stat__label">Lignes en double</p><strong class="cc-stat__value">1</strong><span class="cc-stat__hint">Après la première occurrence</span></div>
+          <div class="cc-card cc-stat"><p class="cc-stat__label">Cellules vides</p><strong class="cc-stat__value">1</strong><span class="cc-stat__hint">Espaces seuls inclus</span></div>
+        </div>
+        <div class="cc-card cc-report">
+          <div class="cc-card__head"><div class="cc-file"><span class="cc-file__icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6Z"/><path d="M14 2v6h6M8 13h8m-8 4h5"/></svg></span><div><p class="cc-file__name">contacts.csv</p><p class="cc-help">Rapport d’exemple · UTF-8</p></div></div><span class="cc-badge cc-badge--warning">2 points à vérifier</span></div>
+          <div class="cc-table-scroll" role="region" aria-label="Tableau des anomalies, défilement horizontal possible" tabindex="0">
+            <table class="cc-table"><caption>Points repérés dans le fichier</caption><thead><tr><th scope="col">Ligne</th><th scope="col">Type</th><th scope="col">Colonne</th><th scope="col">Détail</th></tr></thead><tbody><tr><td class="cc-number">3</td><td><span class="cc-badge cc-badge--warning">Cellule vide</span></td><td><code>email</code></td><td>Aucune valeur renseignée</td></tr><tr><td class="cc-number">4</td><td><span class="cc-badge cc-badge--warning">Doublon</span></td><td>—</td><td>Ligne déjà présente dans le fichier</td></tr></tbody></table>
+          </div>
+        </div>
+        <div class="cc-card cc-empty" style="margin-top:1rem">
+          <div class="cc-empty__icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h16v16H4zM4 9h16M9 9v11"/></svg></div>
+          <h3>Aucune analyse pour le moment</h3><p>Ajoutez un premier fichier CSV pour obtenir un rapport.</p><a class="cc-btn cc-btn--secondary" href="#forms">Choisir un fichier</a>
+        </div>
+      </section>
+      <footer class="cc-footer"><span>CSV Check · Design system v0.1</span><span>Composants de référence · Données fictives</span></footer>
+    </main>
+  </div>
+</body>
+</html>
