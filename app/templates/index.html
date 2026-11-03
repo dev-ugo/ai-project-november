@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Analysez un CSV pour repérer les cellules vides et les lignes en double.">
+  <title>Analyser un CSV · CSV Check</title>
+  <link rel="stylesheet" href="/static/css/design-system.css">
+  <link rel="stylesheet" href="/static/css/app.css">
+  <script src="/static/js/app.js" defer></script>
+</head>
+<body class="cc-app">
+  <a class="cc-skip" href="#main">Aller au contenu</a>
+  <header class="cc-topbar">
+    <div class="cc-topbar__inner">
+      <a class="cc-brand" href="/" aria-label="CSV Check, accueil">
+        <span class="cc-brand__mark" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 3v18M13 15l2 2 4-4"/></svg></span>
+        CSV Check
+      </a>
+      <nav class="cc-app-nav" aria-label="Navigation principale">
+        <a href="/" aria-current="page">Analyser un CSV</a>
+        <a href="/design-system">Design system</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="cc-app-main" id="main">
+    <div class="cc-app-heading">
+      <p class="cc-eyebrow">Un contrôle avant votre prochain import</p>
+      <h1>Analysez votre fichier CSV.</h1>
+      <p>Repérez les cellules vides et les lignes en double, avec un rapport clair pour savoir où regarder.</p>
+    </div>
+
+    <noscript><div class="cc-alert cc-alert--danger">Activez JavaScript pour utiliser ce formulaire. Vous pouvez aussi envoyer votre fichier depuis <a href="/docs">la documentation de l’API</a>.</div></noscript>
+
+    <div class="cc-upload-layout">
+      <section class="cc-card" aria-labelledby="upload-heading">
+        <div class="cc-card__head"><div class="cc-row"><span class="cc-step-number" aria-hidden="true">1</span><h2 id="upload-heading">Votre fichier</h2></div><span class="cc-badge cc-badge--neutral">CSV · UTF-8</span></div>
+        <form id="csv-form" class="cc-card__body" action="/analyses" method="post" enctype="multipart/form-data" novalidate>
+          <input class="cc-sr-only" id="csv-file" type="file" name="file" accept=".csv,text/csv" aria-describedby="file-hint file-status">
+          <label class="cc-dropzone cc-app-dropzone" id="csv-dropzone" for="csv-file">
+            <span class="cc-dropzone__icon" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4m-4 4 4-4 4 4M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/></svg></span>
+            <span class="cc-dropzone__title" id="file-title">Glissez votre CSV ici</span>
+            <span class="cc-dropzone__help" id="file-hint">ou choisissez-le sur votre appareil · 1 Mio maximum</span>
+            <span class="cc-btn cc-btn--secondary" id="file-picker-label">Choisir un fichier</span>
+          </label>
+          <p class="cc-upload-status" id="file-status" role="status">Aucun fichier sélectionné.</p>
+
+          <div class="cc-upload-options">
+            <div class="cc-field"><label class="cc-label" for="csv-delimiter">Séparateur du fichier</label><select class="cc-select" id="csv-delimiter" aria-describedby="delimiter-help"><option value=",">Virgule (,)</option><option value=";">Point-virgule (;)</option></select><p class="cc-help" id="delimiter-help">Choisissez le caractère qui sépare vos colonnes.</p></div>
+          </div>
+
+          <div class="cc-alert cc-alert--danger cc-form-error" id="form-error" role="alert" hidden><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v6m0 3v1"/></svg><div><strong id="error-title">L’analyse ne peut pas démarrer.</strong><p id="error-message"></p></div></div>
+
+          <div class="cc-upload-actions">
+            <button class="cc-btn cc-btn--primary" id="analyze-button" type="submit" disabled><span class="cc-spinner" id="analyze-spinner" aria-hidden="true" hidden></span><span id="analyze-label">Analyser le CSV</span><svg id="analyze-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6"/></svg></button>
+            <button class="cc-btn cc-btn--quiet" id="reset-button" type="button" disabled>Réinitialiser</button>
+          </div>
+          <p class="cc-request-status" id="request-status" role="status" aria-live="polite">Les résultats seront enregistrés après l’analyse.</p>
+        </form>
+      </section>
+
+      <aside class="cc-upload-aside" aria-label="Aide à l’analyse">
+        <div class="cc-card cc-card__body">
+          <p class="cc-eyebrow">Deux contrôles, un rapport</p>
+          <h2 class="cc-guide-title">Ce que nous vérifions</h2>
+          <div class="cc-check-item"><span class="cc-check-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 3v18"/></svg></span><div><h3>Cellules vides</h3><p>Les valeurs absentes, y compris les cellules contenant uniquement des espaces.</p></div></div>
+          <div class="cc-check-item"><span class="cc-check-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="8" y="8" width="13" height="13" rx="2"/><path d="M16 5V3H3v13h2"/></svg></span><div><h3>Lignes en double</h3><p>Chaque répétition d’une ligne dont toutes les valeurs sont identiques.</p></div></div>
+          <p class="cc-check-note">Ces points sont à vérifier selon votre contexte. Une cellule vide n’est pas forcément une erreur.</p>
+        </div>
+        <div class="cc-example-card"><div class="cc-row"><span class="cc-example-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14 2H6v20h14V8l-6-6Z"/><path d="M14 2v6h6M8 13h8m-8 4h5"/></svg></span><h3>Envie d’essayer ?</h3></div><p>Notre exemple contient 3 lignes, 1 doublon et 1 cellule vide.</p><a href="/static/examples/contacts.csv" download="contacts.csv" class="cc-example-link">Télécharger le CSV d’exemple <span aria-hidden="true">↓</span></a></div>
+      </aside>
+    </div>
+
+    <section class="cc-results" id="analysis-results" aria-labelledby="results-heading" tabindex="-1" hidden>
+      <div class="cc-result-heading"><div><p class="cc-eyebrow">Votre rapport</p><h2 id="results-heading">Résultat de l’analyse</h2></div><span class="cc-badge cc-badge--success" id="saved-label"></span></div>
+      <div class="cc-stats">
+        <div class="cc-card cc-stat"><p class="cc-stat__label">Lignes analysées</p><strong class="cc-stat__value" id="row-count">0</strong><span class="cc-stat__hint">En-tête et lignes vierges exclus</span></div>
+        <div class="cc-card cc-stat"><p class="cc-stat__label">Lignes en double</p><strong class="cc-stat__value" id="duplicate-count">0</strong><span class="cc-stat__hint">Après la première occurrence</span></div>
+        <div class="cc-card cc-stat"><p class="cc-stat__label">Cellules vides</p><strong class="cc-stat__value" id="empty-cell-count">0</strong><span class="cc-stat__hint">Espaces seuls inclus</span></div>
+      </div>
+      <div class="cc-alert cc-result-message" id="result-message"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v6m0 3v1"/></svg><p id="result-message-text"></p></div>
+      <div class="cc-card cc-report">
+        <div class="cc-card__head"><div class="cc-file"><span class="cc-file__icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 2H6v20h14V8l-6-6Z"/><path d="M14 2v6h6M8 13h8m-8 4h5"/></svg></span><div><p class="cc-file__name" id="report-filename"></p><p class="cc-help">Analysé le <time id="report-date"></time></p></div></div><span class="cc-badge" id="findings-label"></span></div>
+        <div class="cc-table-scroll" role="region" aria-label="Détail des points à vérifier, défilement horizontal possible" tabindex="0" id="findings-table-region"><table class="cc-table"><caption>Détail des points à vérifier</caption><thead><tr><th scope="col">Ligne du CSV</th><th scope="col">Type</th><th scope="col">Colonne</th><th scope="col">Détail</th></tr></thead><tbody id="findings-body"></tbody></table></div>
+        <div class="cc-empty cc-result-empty" id="no-findings" hidden><div class="cc-empty__icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="m5 12 4 4L19 6"/></svg></div><h3 id="no-findings-title">Aucun point à vérifier détecté</h3><p id="no-findings-text">Aucun doublon ni cellule vide n’a été trouvé lors de ces deux contrôles.</p></div>
+        <p class="cc-table-note" id="findings-limit" hidden></p>
+      </div>
+      <div class="cc-result-actions"><button class="cc-btn cc-btn--secondary" id="new-analysis-button" type="button">Analyser un autre fichier</button><span class="cc-help">Le rapport a été enregistré en base.</span></div>
+    </section>
+
+    <footer class="cc-footer"><span>CSV Check · Un regard plus clair sur vos données</span><a href="/docs">Documentation de l’API <span aria-hidden="true">↗</span></a></footer>
+  </main>
+</body>
+</html>

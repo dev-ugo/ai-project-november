@@ -1,0 +1,64 @@
+/* Functional CSV upload page. Reuses design-system.css tokens and components. */
+.cc-app .cc-topbar__inner { max-width: 1168px; }
+.cc-app-nav { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+.cc-app-nav a { display: inline-flex; align-items: center; min-height: 44px; padding: .5rem .8rem; border-radius: var(--cc-radius-sm); color: var(--cc-muted); text-decoration: none; font-size: var(--cc-text-sm); font-weight: 550; }
+.cc-app-nav a[aria-current="page"], .cc-app-nav a:hover { color: var(--cc-primary); background: var(--cc-primary-soft); }
+.cc-app-main { max-width: 1168px; margin: 0 auto; padding: 3rem 2rem 2rem; }
+.cc-app-heading { max-width: 760px; margin-bottom: 2rem; }
+.cc-app-heading .cc-eyebrow { color: var(--cc-primary); margin-bottom: .8rem; }
+.cc-app-heading h1 { margin-bottom: .8rem; font-size: clamp(2rem, 4vw, 2.6rem); }
+.cc-app-heading > p:last-child { max-width: 620px; color: var(--cc-muted); font-size: var(--cc-text-lg); }
+.cc-upload-layout { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(270px, 1fr); align-items: start; gap: 1.5rem; }
+.cc-upload-layout > *, .cc-upload-aside { min-width: 0; }
+.cc-upload-layout .cc-card__head h2 { font-size: var(--cc-text-lg); }
+.cc-step-number { width: 26px; height: 26px; border-radius: 7px; display: grid; place-items: center; color: var(--cc-primary); background: var(--cc-primary-soft); font-size: var(--cc-text-xs); font-weight: 650; }
+.cc-app-dropzone { min-height: 240px; }
+.cc-app-dropzone[aria-disabled="true"] { cursor: wait; opacity: .7; }
+.cc-upload-options { margin-top: 1rem; max-width: 340px; }
+.cc-upload-actions { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--cc-border); }
+.cc-request-status { color: var(--cc-muted); font-size: var(--cc-text-xs); margin-top: .8rem; min-height: 1.4em; }
+.cc-form-error { margin-top: 1.25rem; }
+.cc-form-error p { overflow-wrap: anywhere; }
+.cc-guide-title { font-size: var(--cc-text-lg); margin-top: .8rem; }
+.cc-check-item { display: flex; gap: .8rem; margin-top: 1.6rem; }
+.cc-check-icon { display: grid; place-items: center; width: 36px; height: 36px; flex: 0 0 36px; color: var(--cc-primary); background: var(--cc-primary-soft); border-radius: 9px; }
+.cc-check-item h3 { font-size: var(--cc-text-sm); font-weight: 650; letter-spacing: 0; margin: .15rem 0 .35rem; }
+.cc-check-item p { font-size: var(--cc-text-sm); color: var(--cc-muted); }
+.cc-check-note { border-top: 1px solid var(--cc-border); margin-top: 1.5rem; padding-top: 1rem; font-size: var(--cc-text-xs); color: var(--cc-muted); }
+.cc-example-card { padding: 1.25rem 1.5rem; margin-top: 1rem; border-radius: var(--cc-radius-md); background: var(--cc-primary-soft); }
+.cc-example-icon { color: var(--cc-primary); display: flex; }
+.cc-example-card h3 { font-size: var(--cc-text-sm); letter-spacing: 0; }
+.cc-example-card > p { margin: .75rem 0 .5rem; color: var(--cc-muted); font-size: var(--cc-text-sm); }
+.cc-example-link { min-height: 44px; display: inline-flex; align-items: center; gap: .65rem; font-size: var(--cc-text-sm); font-weight: 600; text-decoration: none; }
+.cc-example-link:hover { text-decoration: underline; }
+.cc-results { margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--cc-border); scroll-margin-top: 2rem; }
+.cc-results:focus { outline-offset: .75rem; }
+.cc-result-heading { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; align-items: center; margin-bottom: 1.5rem; }
+.cc-result-heading h2 { margin-top: .5rem; }
+.cc-result-message { margin-top: 1rem; }
+.cc-result-empty .cc-empty__icon { color: var(--cc-success); background: var(--cc-success-soft); }
+.cc-result-empty.is-header-only .cc-empty__icon { color: var(--cc-muted); background: var(--cc-bg); }
+.cc-table-note { border-top: 1px solid var(--cc-border); padding: 1rem 1.5rem; font-size: var(--cc-text-sm); color: var(--cc-muted); }
+.cc-result-actions { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; margin-top: 1.25rem; }
+.cc-app .cc-footer { margin-top: 2rem; }
+.cc-app .cc-footer a { color: var(--cc-muted); }
+@media (max-width: 850px) {
+  .cc-upload-layout { grid-template-columns: minmax(0, 1fr); }
+  .cc-upload-aside { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 1rem; align-items: start; }
+  .cc-example-card { margin-top: 0; }
+}
+@media (max-width: 600px) {
+  .cc-app .cc-topbar__inner { flex-wrap: wrap; gap: .5rem; }
+  .cc-app-nav { gap: .25rem; }
+  .cc-app-nav a { padding-inline: .6rem; font-size: var(--cc-text-xs); }
+  .cc-app-main { padding: 2rem 1rem 1.5rem; }
+  .cc-app-heading { margin-bottom: 1.5rem; }
+  .cc-app-heading > p:last-child { font-size: var(--cc-text-base); }
+  .cc-upload-aside { display: block; }
+  .cc-example-card { margin-top: 1rem; }
+  .cc-app-dropzone { min-height: 220px; }
+  .cc-upload-options { max-width: none; }
+  .cc-upload-actions .cc-btn--primary { flex: 1; }
+  .cc-results { margin-top: 2rem; }
+  .cc-result-heading h2 { font-size: 1.35rem; }
+}

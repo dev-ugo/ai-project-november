@@ -2,6 +2,7 @@
 
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
+from fastapi.responses import HTMLResponse
 from pathlib import Path
 from fastapi.staticfiles import StaticFiles
 from app.routers import design_system
@@ -26,7 +27,8 @@ app.include_router(health.router)
 app.include_router(analyses.router)
 
 
-@app.get("/", include_in_schema=False)
-def home() -> RedirectResponse:
-    """Open the API documentation until the web interface is implemented."""
-    return RedirectResponse(url="/docs")
+@app.get("/", response_class=HTMLResponse, include_in_schema=False)
+def home() -> HTMLResponse:
+    """Display the CSV upload and analysis interface."""
+    page = APP_DIR / "templates" / "index.html"
+    return HTMLResponse(page.read_text(encoding="utf-8"))
