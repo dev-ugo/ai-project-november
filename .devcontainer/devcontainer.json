@@ -1,5 +1,8 @@
 {
   "name": "CSV Check",
+  "features": {
+  "ghcr.io/devcontainers/features/git-lfs:1": {}
+   },
   "dockerComposeFile": "compose.yaml",
   "service": "app",
   "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
