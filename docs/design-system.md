@@ -1,154 +1,160 @@
-# CSV Check design system
+# Design system de CSV Check
 
-Version 0.1. A small, framework-free design system for the CSV Check MVP.
+Version 0.1. Une base visuelle légère, sans framework CSS, pour le MVP CSV Check.
 
-## Design direction
+## Direction visuelle
 
-Use a light background, white surfaces, dark readable text and one blue action
-color. The interface helps users upload a CSV, understand the results and open
-previous reports. French is used in the UI; implementation identifiers and
-documentation are in English. Fonts are provided by the operating system.
+L’interface utilise un fond clair, des cartes blanches, un texte sombre et une couleur bleue pour les actions principales. Elle accompagne l’utilisateur dans l’ajout d’un CSV et la lecture de son rapport.
 
-## Foundations
+L’interface et la documentation sont en français. Les noms de fichiers, variables, classes CSS et identifiants techniques restent en anglais lorsque c’est logique. La police est fournie par le système d’exploitation.
 
-### Colors
+## Fondations
 
-| CSS token | Value | Purpose |
+### Couleurs
+
+Les couleurs sont centralisées dans des variables CSS pour conserver une apparence cohérente.
+
+| Variable CSS | Valeur | Utilisation |
 | --- | --- | --- |
-| `--cc-bg` | `#F6F8FB` | Page background |
-| `--cc-surface` | `#FFFFFF` | Cards and controls |
-| `--cc-text` | `#182230` | Main text |
-| `--cc-muted` | `#596579` | Supporting text |
-| `--cc-border` | `#E4E7EC` | Decorative card boundaries |
-| `--cc-control-border` | `#7C879A` | Input and secondary button boundaries |
-| `--cc-primary` | `#1D4ED8` | Primary actions, links and focus outlines |
-| `--cc-primary-hover` | `#1E40AF` | Hover on primary buttons |
-| `--cc-primary-soft` | `#EFF6FF` | Supporting blue surfaces |
-| `--cc-success` / `--cc-success-soft` | `#166534` / `#ECFDF3` | Successful operations |
-| `--cc-warning` / `--cc-warning-soft` | `#92400E` / `#FFFAEB` | Findings that need review |
-| `--cc-danger` / `--cc-danger-soft` | `#B42318` / `#FEF3F2` | Blocking upload or parsing errors |
+| `--cc-bg` | `#F6F8FB` | Fond de page |
+| `--cc-surface` | `#FFFFFF` | Cartes et champs de formulaire |
+| `--cc-text` | `#182230` | Texte principal |
+| `--cc-muted` | `#596579` | Texte secondaire |
+| `--cc-border` | `#E4E7EC` | Bordures décoratives des cartes |
+| `--cc-control-border` | `#7C879A` | Bordures des champs et boutons secondaires |
+| `--cc-primary` | `#1D4ED8` | Actions principales, liens et indicateurs de focus |
+| `--cc-primary-hover` | `#1E40AF` | Survol des boutons principaux |
+| `--cc-primary-soft` | `#EFF6FF` | Fonds bleus discrets |
+| `--cc-success` / `--cc-success-soft` | `#166534` / `#ECFDF3` | Confirmation d’une opération réussie |
+| `--cc-warning` / `--cc-warning-soft` | `#92400E` / `#FFFAEB` | Points à vérifier |
+| `--cc-danger` / `--cc-danger-soft` | `#B42318` / `#FEF3F2` | Erreurs empêchant l’envoi ou l’analyse |
 
-### Typography and layout
+### Typographie et mise en page
 
-- Font: system UI sans-serif. Use monospace only for column names and technical values.
-- Main heading: responsive 32–44 px. Section: 24 px. Component: 18 px.
-- Body: 16 px with 1.6 line height. Labels: 14 px. Metadata: 12 px.
-- Weights: 400 for body text, 600–700 for hierarchy.
-- Spacing tokens: 4, 8, 12, 16, 24, 32 and 48 px.
-- Corner radii: 8 px for controls, 12 px for cards, 16 px for larger surfaces.
-- Control height: at least 44 px.
-- Under 700 px: navigation scrolls horizontally, columns stack, statistics stack.
-- Dense tables scroll inside their own container rather than widening the page.
+- Police sans empattement du système. Une police à chasse fixe est réservée aux noms de colonnes et aux valeurs techniques.
+- Titre principal : 32 à 44 px selon l’espace disponible. Titre de section : 24 px. Titre de composant : 18 px.
+- Texte courant : 16 px, avec un interligne de 1,6. Libellés : 14 px. Métadonnées : 12 px.
+- Graisse : 400 pour le texte courant, 600 à 700 pour la hiérarchie.
+- Espacements : 4, 8, 12, 16, 24, 32 et 48 px.
+- Arrondis : 8 px pour les champs et boutons, 12 px pour les cartes, 16 px pour les grandes surfaces.
+- Hauteur des champs et boutons : au moins 44 px.
+- Sur la page de référence, sous 700 px, les colonnes et statistiques s’empilent et la navigation défile horizontalement.
+- Les tableaux denses défilent dans leur propre cadre pour préserver la largeur de la page et la lisibilité des libellés.
 
-## Component inventory
+## Composants
 
-| Component | Classes | States or variants |
+| Composant | Classes | États ou variantes |
 | --- | --- | --- |
-| Button | `cc-btn`, `cc-btn--primary`, `cc-btn--secondary`, `cc-btn--quiet` | Default, hover, keyboard focus, disabled, loading |
-| Input | `cc-input`, `cc-label`, `cc-help`, `cc-error` | Default, focus, invalid, read-only |
-| Select | `cc-select` | Comma or semicolon |
-| File input | `cc-dropzone` | Idle, hover, keyboard focus, drag-over, selected file, invalid |
-| Badge | `cc-badge` with `--neutral`, `--info`, `--success`, `--warning`, `--danger` | Status with text |
-| Message | `cc-alert` with `--info`, `--success`, `--warning`, `--danger` | Message and next action |
-| Card | `cc-card`, `cc-card__head`, `cc-card__body` | Content and report containers |
-| Statistic | `cc-stat`, `cc-stat__label`, `cc-stat__value`, `cc-stat__hint` | Row, duplicate and empty-cell counts |
-| Detail table | `cc-table-scroll`, `cc-table` | Accessible headers and scroll region |
-| Empty state | `cc-empty` | First-use explanation and upload link |
+| Bouton | `cc-btn`, `cc-btn--primary`, `cc-btn--secondary`, `cc-btn--quiet` | Normal, survol, focus clavier, désactivé, chargement |
+| Champ de saisie | `cc-input`, `cc-label`, `cc-help`, `cc-error` | Normal, focus, invalide, lecture seule |
+| Liste de sélection | `cc-select` | Virgule ou point-virgule |
+| Zone de dépôt | `cc-dropzone` | Attente, survol, focus clavier, glisser-déposer, fichier sélectionné, invalide |
+| Badge | `cc-badge` et variantes `cc-badge--*` | `neutral`, `info`, `success`, `warning`, `danger` |
+| Message | `cc-alert` et variantes `cc-alert--*` | `info`, `success`, `warning`, `danger` |
+| Carte | `cc-card`, `cc-card__head`, `cc-card__body` | Contenu et rapports |
+| Statistique | `cc-stat`, `cc-stat__label`, `cc-stat__value`, `cc-stat__hint` | Compteurs de lignes, doublons et cellules vides |
+| Tableau de détail | `cc-table-scroll`, `cc-table` | En-têtes accessibles et défilement horizontal |
+| État vide | `cc-empty` | Explication et action pour commencer |
 
-## Status rules
+Un écran privilégie une action principale. Les actions secondaires utilisent un style plus discret.
 
-- A report being saved is a successful operation even if it contains findings.
-- Empty cells and duplicate rows are **points to review**, not necessarily errors.
-- Red means the operation could not complete: invalid format, size or encoding,
-  malformed CSV, or a failed request.
-- Do not use "no issues" to mean that the data is fully correct: this MVP only
-  checks empty cells and exact duplicate rows.
-- Show labels and icons as well as color.
-- Counts must map directly to `row_count`, `duplicate_count`, `empty_cell_count`.
-- The example page uses the project's three-row contacts sample: one empty cell
-  on CSV line 3 and a duplicate on line 4. Its values are illustrative, not live.
+## Règles de statut
 
-## Accessibility and interaction
+- L’enregistrement d’un rapport est une opération réussie, même si des points à vérifier ont été détectés.
+- Les cellules vides et les doublons sont des **points à vérifier**, pas nécessairement des erreurs métier.
+- Le rouge indique que l’opération n’a pas pu aboutir : format, taille ou encodage invalide, CSV mal formé ou requête en échec.
+- L’absence de points détectés signifie seulement qu’aucune cellule vide ni aucun doublon exact n’a été trouvé. Elle ne garantit pas que toutes les données sont correctes.
+- Chaque statut comporte un texte explicite ; une icône peut compléter la couleur.
+- Les compteurs correspondent directement à `row_count`, `duplicate_count` et `empty_cell_count`.
+- La page de référence présente un exemple de 3 lignes de données : une cellule vide à la ligne 3 et un doublon à la ligne 4 du CSV. Ces valeurs sont illustratives.
 
-- Keep semantic buttons, input labels, a single h1 and ordered heading levels.
-- Keyboard focus is visible. The hidden native file input remains focusable.
-- Dynamic upload feedback uses a status region; invalid controls reference their
-  explanatory message. Unexpected real errors should be announced as alerts.
-- Input boundaries and focus indicators remain visible on the page surface.
-- Table headings have a `scope`; the table has a caption and a focusable scroll region.
-- Animations respect `prefers-reduced-motion`.
-- Avoid essential meaning conveyed only by icons, color or hover.
+## Accessibilité et interactions
 
-## File inventory
+- Utiliser des boutons HTML, des libellés associés aux champs, un seul titre `h1` et une hiérarchie de titres ordonnée.
+- Maintenir un focus clavier visible. Le champ natif de sélection de fichier reste accessible au clavier, même s’il est masqué visuellement.
+- Annoncer les changements d’état de l’envoi dans une zone de statut.
+- Associer les champs invalides à leur message explicatif. Les erreurs inattendues doivent être annoncées comme des alertes.
+- Conserver des bordures de champs et des indicateurs de focus visibles sur leur fond.
+- Donner un attribut `scope` aux en-têtes du tableau, un titre au tableau et un cadre de défilement accessible au clavier.
+- Respecter `prefers-reduced-motion` pour réduire les animations.
+- Transmettre les informations importantes par un texte, en complément des icônes, des couleurs et des effets de survol.
 
-| File | Purpose |
+## Fichiers du design system
+
+| Fichier | Rôle |
 | --- | --- |
-| `app/static/css/design-system.css` | Reusable tokens, layouts and component styles |
-| `app/static/js/design-system.js` | Local interactions for the reference page only |
-| `app/templates/design-system.html` | Component reference using the shared CSS |
-| `app/routers/design_system.py` | FastAPI route at `/design-system` |
-| `docs/design-system-preview.html` | Self-contained offline copy for visual review |
-| `docs/design-system.md` | Design decisions, component usage and integration |
+| `app/static/css/design-system.css` | Variables CSS, mises en page et styles des composants |
+| `app/static/js/design-system.js` | Interactions locales de la page de référence |
+| `app/templates/design-system.html` | Page de référence utilisant les styles partagés |
+| `app/routers/design_system.py` | Route FastAPI `/design-system` |
+| `docs/design-system-preview.html` | Copie autonome pour consulter la référence hors ligne |
+| `docs/design-system.md` | Principes visuels, composants et utilisation |
 
-The reference page performs **no API calls**. Its upload component only validates
-the filename and size for demonstration; UTF-8 and content validation belong to
-the existing API. The loading button simulates a request and never writes a report.
+La page `/design-system` **n’appelle pas l’API**. Sa zone de dépôt vérifie uniquement l’extension et la taille du fichier pour la démonstration. Le bouton de chargement simule une requête et ne crée aucun rapport.
 
-## Integrate into the existing FastAPI project
+L’interface réelle utilise `app/templates/index.html`, `app/static/css/app.css` et `app/static/js/app.js`. Elle réutilise les composants partagés et envoie les fichiers à `POST /analyses`.
 
-1. Extract the archive at the repository root. It adds the files above and does
-   not contain a replacement `main.py` or deployment configuration.
-2. Add these imports to `app/main.py`:
+## Intégration dans FastAPI
 
-   ```python
-   from pathlib import Path
-   from fastapi.staticfiles import StaticFiles
-   from app.routers import design_system
-   ```
+Les fichiers statiques sont exposés sous `/static` et la page de référence est enregistrée dans `app/main.py`.
 
-3. After the existing `app = FastAPI(...)` statement, add:
+Imports nécessaires :
 
-   ```python
-   APP_DIR = Path(__file__).resolve().parent
-   app.mount(
-       "/static",
-       StaticFiles(directory=APP_DIR / "static"),
-       name="static",
-   )
-   app.include_router(design_system.router)
-   ```
+```python
+from pathlib import Path
+from fastapi.staticfiles import StaticFiles
+from app.routers import design_system
+```
 
-   Keep the existing router registrations and home route. If `/static` is already
-   mounted, reuse that mount rather than registering it again.
-4. Run the usual development command:
+Après la création de `app = FastAPI(...)` :
 
-   ```bash
-   .venv/bin/python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-   ```
+```python
+APP_DIR = Path(__file__).resolve().parent
 
-5. Open `/design-system` on the forwarded port. Check `/health` and `/docs` still
-   respond. Test the demo loader, file picker, reset, invalid extension and a
-   narrow browser window. You can open `docs/design-system-preview.html` directly
-   on your computer to review the same page offline.
-6. Commit and push from your Codespace:
+app.mount(
+    "/static",
+    StaticFiles(directory=APP_DIR / "static"),
+    name="static",
+)
 
-   ```bash
-   git add app/main.py app/routers/design_system.py app/static/css/design-system.css app/static/js/design-system.js app/templates/design-system.html docs/design-system.md docs/design-system-preview.html
-   git diff --cached
-   git commit -m "feat: add CSV Check design system and component reference"
-   git push
-   ```
+app.include_router(design_system.router)
+```
 
-7. After Render's automatic deployment succeeds, open `/design-system` on the
-   deployed API URL. This step publishes the component reference. The functional
-   upload/history screens can then reuse the same classes.
+Ce montage et cet enregistrement ne doivent être ajoutés qu’une fois. Les autres routes de l’application sont conservées.
 
-## Using the components in the future UI
+La route `/design-system` utilise `include_in_schema=False` : elle reste accessible directement, mais n’apparaît pas dans la documentation interactive `/docs`.
+
+## Vérification de la page de référence
+
+Démarrer l’application depuis la racine du dépôt :
+
+```bash
+.venv/bin/python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+Ouvrir `/design-system` sur le port transféré, puis vérifier :
+
+- l’affichage des couleurs, des textes et des composants ;
+- le chargement simulé et la réinitialisation ;
+- la sélection d’un fichier et le message affiché pour une extension invalide ;
+- la navigation au clavier et les indicateurs de focus ;
+- la mise en page sur une fenêtre étroite ;
+- le fonctionnement de `/health` et `/docs`.
+
+Le fichier `docs/design-system-preview.html` peut aussi être ouvert directement dans un navigateur. Il s’agit d’une copie autonome de la référence : après une modification des styles ou des composants, cette copie doit être mise à jour séparément.
+
+Après un déploiement Render réussi, `/design-system` est également disponible sur l’URL hébergée.
+
+## Réutilisation dans l’interface
+
+Charger le fichier CSS partagé, puis utiliser les classes des composants :
 
 ```html
 <link rel="stylesheet" href="/static/css/design-system.css">
 
-<button class="cc-btn cc-btn--primary" type="submit">Analyser le fichier</button>
+<button class="cc-btn cc-btn--primary" type="submit">
+  Analyser le fichier
+</button>
 
 <span class="cc-badge cc-badge--warning">Points à vérifier</span>
 
@@ -157,7 +163,6 @@ the existing API. The loading button simulates a request and never writes a repo
 </div>
 ```
 
-For real requests, use the existing `POST /analyses` route with multipart `file`
-and the selected `delimiter` query parameter. Keep demonstration JavaScript on
-the reference page only; the real screen will manage fetch, loading, API errors
-and report rendering separately.
+Les envois réels utilisent `POST /analyses`, avec le fichier dans le champ multipart `file` et le séparateur choisi dans le paramètre de requête `delimiter`.
+
+Le JavaScript de démonstration reste limité à la page de référence. L’écran d’analyse gère ses propres requêtes, le chargement, les erreurs et l’affichage du rapport.
