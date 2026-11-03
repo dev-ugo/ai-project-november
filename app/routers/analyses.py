@@ -5,6 +5,7 @@ from typing import Literal
 
 from fastapi import APIRouter, HTTPException, UploadFile
 from sqlalchemy.orm import Session
+from sqlalchemy import select
 
 from app.database import engine
 from app.models.analysis import Analysis
@@ -68,3 +69,26 @@ def create_analysis(
             "created_at": analysis.created_at,
             **report,
         }
+
+@router.get("")
+def list_analyses() -> list[dict]:
+    """Lister les 50 dernières analyses, accessibles à tous."""
+    with Session(engine) as session:
+        statement = (
+            select(Analysis)
+            .order_by(Analysis.created_at.desc(), Analysis.id.desc())
+            .limit(50)
+        )
+        analyses = session.scalars(statement).all()
+
+        return [
+            {
+                "id": analysis.id,
+                "filename": analysis.filename,
+                "created_at": analysis.created_at,
+                "row_count": analysis.row_count,
+                "duplicate_count": analysis.duplicate_count,
+                "empty_cell_count": analysis.empty_cell_count,
+            }
+            for analysis in analyses
+        ]
