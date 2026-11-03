@@ -2,9 +2,13 @@
 
 import os
 
+from dotenv import load_dotenv
+
 from sqlalchemy import create_engine
 from sqlalchemy.engine import make_url
 from sqlalchemy.orm import DeclarativeBase
+
+load_dotenv()
 
 database_url = make_url(
     os.environ["DATABASE_URL"]

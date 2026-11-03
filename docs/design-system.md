@@ -163,3 +163,11 @@ Charger le fichier CSS partagé, puis utiliser les classes des composants :
 Les envois réels utilisent `POST /analyses`, avec le fichier dans le champ multipart `file` et le séparateur choisi dans le paramètre de requête `delimiter`.
 
 Le JavaScript de démonstration reste limité à la page de référence. L’écran d’analyse gère ses propres requêtes, le chargement, les erreurs et l’affichage du rapport.
+
+## Comptes, historique privé et correction
+
+L’interface principale réutilise les cartes, champs et boutons pour la connexion et l’inscription. L’espace d’analyse reste masqué jusqu’à la vérification de la session. L’historique présente uniquement les rapports du compte connecté, dans un tableau défilant sur petit écran. Chaque ligne dispose d’un bouton « Ouvrir » avec un libellé accessible précisant le fichier.
+
+Le rapport propose « Recevoir le CSV corrigé par e-mail », en précisant l’adresse du destinataire et la règle : supprimer les doublons exacts, conserver les cellules vides. Le clic constitue la demande d’envoi ; aucune action automatique ne transmet un fichier à la fin de l’analyse. La confirmation indique une transmission au prestataire, sans promettre une réception finale.
+
+Les messages de connexion, de chargement de l’historique et d’envoi utilisent des régions de statut. Les contrôles sont temporairement désactivés pendant une requête afin d’éviter les doubles actions. Une session expirée ramène à la connexion et efface les listes affichées. Les noms de fichiers sont insérés comme texte, jamais comme HTML.

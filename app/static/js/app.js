@@ -1,4 +1,4 @@
-/* Real CSV upload, using the existing same-origin POST /analyses API. */
+/* Analyse, compte, historique privé et demande explicite d’envoi. */
 "use strict";
 
 (() => {
@@ -24,6 +24,13 @@
   const dateFormat = new Intl.DateTimeFormat("fr-CH", {dateStyle: "medium", timeStyle: "short"});
   let selectedFile = null;
   let busy = false;
+  let currentUser = null;
+  let currentReport = null;
+  const authForm = document.getElementById("auth-form");
+  const accountStatus = document.getElementById("account-status");
+  const historyStatus = document.getElementById("history-status");
+  const emailStatus = document.getElementById("email-status");
+  const emailButton = document.getElementById("email-report-button");
 
   function clearError() {
     errorBox.hidden = true;
@@ -38,25 +45,28 @@
     errorBox.hidden = false;
   }
 
-  function setBusy(value) {
+  function setBusy(value, action = "analysis") {
     busy = value;
     form.setAttribute("aria-busy", String(value));
     dropzone.setAttribute("aria-disabled", String(value));
     fileInput.disabled = value;
     delimiter.disabled = value;
-    submitButton.disabled = value || !selectedFile;
+    submitButton.disabled = value || !selectedFile || !currentUser;
     resetButton.disabled = value || (!selectedFile && errorBox.hidden);
-    spinner.hidden = !value;
-    arrow.hidden = value;
-    submitLabel.textContent = value ? "Analyse en cours…" : "Analyser le CSV";
+    spinner.hidden = !(value && action === "analysis");
+    arrow.hidden = value && action === "analysis";
+    submitLabel.textContent = value && action === "analysis" ? "Analyse en cours…" : "Analyser le CSV";
+    document.querySelectorAll("#auth-form button, #auth-form input, #logout-button, #new-analysis-button, #refresh-history, #history-body button").forEach(control => { control.disabled = value; });
+    emailButton.disabled = value || !currentReport?.correction_available || Boolean(currentReport?.email_sent_at);
     if (value) submitButton.setAttribute("aria-busy", "true");
     else submitButton.removeAttribute("aria-busy");
   }
 
   function chooseFile(file) {
-    if (busy || !file) return;
+    if (busy || !currentUser || !file) return;
     clearError();
     results.hidden = true;
+    currentReport = null;
     selectedFile = null;
     let message = "";
     if (!file.name.toLowerCase().endsWith(".csv")) message = "Choisissez un fichier avec l’extension .csv.";
@@ -88,6 +98,7 @@
     selectedFile = null;
     clearError();
     results.hidden = true;
+    currentReport = null;
     dropzone.classList.remove("is-dragover");
     fileTitle.textContent = "Glissez votre CSV ici";
     pickerLabel.textContent = "Choisir un fichier";
@@ -130,6 +141,11 @@
   }
 
   function renderReport(report) {
+    currentReport = report;
+    document.getElementById("email-recipient").textContent = currentUser.email;
+    emailStatus.textContent = report.email_sent_at
+      ? "Ce fichier a déjà été transmis au service d’e-mail."
+      : report.correction_available ? "Un envoi par analyse, uniquement sur votre demande." : "Réimportez ce fichier pour préparer sa correction.";
     document.getElementById("row-count").textContent = numberFormat.format(report.row_count);
     document.getElementById("duplicate-count").textContent = numberFormat.format(report.duplicate_count);
     document.getElementById("empty-cell-count").textContent = numberFormat.format(report.empty_cell_count);
@@ -191,7 +207,7 @@
 
   form.addEventListener("submit", async event => {
     event.preventDefault();
-    if (busy) return;
+    if (busy || !currentUser) return;
     if (!selectedFile) {
       showError("Choisissez un fichier CSV avant de lancer l’analyse.");
       setBusy(false);
@@ -199,6 +215,7 @@
     }
     clearError();
     results.hidden = true;
+    currentReport = null;
     setBusy(true);
     requestStatus.textContent = "Le fichier est en cours d’analyse. Patientez quelques instants.";
     const controller = new AbortController();
@@ -207,19 +224,26 @@
       const data = new FormData();
       data.append("file", selectedFile, selectedFile.name);
       const response = await fetch(`/analyses?delimiter=${encodeURIComponent(delimiter.value)}`, {
-        method: "POST", body: data, signal: controller.signal
+        method: "POST", body: data, signal: controller.signal,
+        credentials: "same-origin", headers: {"X-CSRF-Protection": "1"}
       });
       let payload = null;
       try { payload = await response.json(); }
       catch (error) { if (controller.signal.aborted) throw error; }
+      if (response.status === 401) {
+        setUser(null);
+        throw new Error("Votre session a expiré. Reconnectez-vous.");
+      }
       if (!response.ok) throw new Error(apiError(response.status, payload?.detail));
       if (!isValidReport(payload)) throw new Error("Le serveur a répondu, mais le rapport n’a pas pu être affiché. Il a peut-être été enregistré.");
       renderReport(payload);
+      await loadHistory();
     } catch (error) {
       let message = error.message;
       if (controller.signal.aborted) message = "Le serveur a mis trop de temps à répondre. Le rapport a peut-être été enregistré. Vérifiez la connexion avant de réessayer.";
       else if (error instanceof TypeError) message = "La réponse du serveur a été interrompue. Vérifiez votre connexion puis réessayez.";
-      showError(message, "L’analyse n’a pas pu être confirmée.");
+      if (!currentUser) accountStatus.textContent = message;
+      else showError(message, "L’analyse n’a pas pu être confirmée.");
       requestStatus.textContent = "Une erreur est survenue. Consultez le message au-dessus du bouton.";
     } finally {
       clearTimeout(timer);
@@ -232,6 +256,7 @@
     if (!selectedFile) return;
     clearError();
     results.hidden = true;
+    currentReport = null;
     requestStatus.textContent = "Les résultats seront enregistrés après l’analyse.";
     setBusy(false);
   });
@@ -260,4 +285,165 @@
       setBusy(false);
     }
   });
+  async function api(path, options = {}) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
+    try {
+      const response = await fetch(path, {
+        ...options, credentials: "same-origin", signal: controller.signal,
+        headers: {"X-CSRF-Protection": "1", ...options.headers}
+      });
+      const payload = response.status === 204 ? null : await response.json();
+      if (!response.ok) {
+        if (response.status === 401 && !path.startsWith("/auth/login")) setUser(null);
+        throw new Error(typeof payload?.detail === "string" ? payload.detail : "Vérifiez votre adresse e-mail et votre mot de passe (12 à 128 caractères).");
+      }
+      return payload;
+    } catch (error) {
+      if (controller.signal.aborted) throw new Error("Le serveur met trop de temps à répondre. Vérifiez le résultat avant de réessayer.");
+      if (error instanceof TypeError || error instanceof SyntaxError) throw new Error("Impossible de joindre le serveur. Réessayez dans quelques instants.");
+      throw error;
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  function setUser(user) {
+    currentUser = user;
+    currentReport = null;
+    selectedFile = null;
+    form.reset();
+    clearError();
+    results.hidden = true;
+    document.getElementById("findings-body").replaceChildren();
+    document.getElementById("history-body").replaceChildren();
+    document.getElementById("history-table-region").hidden = true;
+    document.getElementById("history-empty").hidden = true;
+    document.getElementById("private-workspace").hidden = !user;
+    document.getElementById("account-connected").hidden = !user;
+    authForm.hidden = Boolean(user);
+    document.getElementById("account-email").textContent = user?.email || "";
+    document.getElementById("auth-password").value = "";
+    fileTitle.textContent = "Glissez votre CSV ici";
+    fileStatus.textContent = "Aucun fichier sélectionné.";
+    pickerLabel.textContent = "Choisir un fichier";
+    requestStatus.textContent = "Les résultats seront enregistrés après l’analyse.";
+    historyStatus.textContent = "";
+    emailStatus.textContent = "";
+    accountStatus.textContent = user ? "Vos analyses sont privées." : "Connectez-vous ou créez un compte pour analyser un CSV.";
+  }
+
+  async function loadHistory() {
+    if (!currentUser) return;
+    historyStatus.textContent = "Chargement de votre historique…";
+    try {
+      const reports = await api("/analyses");
+      if (!Array.isArray(reports)) throw new Error("Historique illisible. Réessayez.");
+      const fragment = document.createDocumentFragment();
+      for (const report of reports) {
+        if (!Number.isSafeInteger(report.id) || !Number.isFinite(Date.parse(report.created_at))) throw new Error("Historique illisible. Réessayez.");
+        const row = document.createElement("tr");
+        for (const value of [report.filename, dateFormat.format(new Date(report.created_at)), report.row_count, report.duplicate_count, report.empty_cell_count]) {
+          const cell = document.createElement("td");
+          cell.textContent = typeof value === "number" ? numberFormat.format(value) : value;
+          row.append(cell);
+        }
+        const action = document.createElement("td");
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "cc-btn cc-btn--secondary";
+        button.textContent = "Ouvrir";
+        button.setAttribute("aria-label", `Ouvrir le rapport de ${report.filename}`);
+        button.disabled = busy;
+        button.addEventListener("click", () => openReport(report.id));
+        action.append(button);
+        row.append(action);
+        fragment.append(row);
+      }
+      document.getElementById("history-body").replaceChildren(fragment);
+      document.getElementById("history-table-region").hidden = reports.length === 0;
+      document.getElementById("history-empty").hidden = reports.length !== 0;
+      historyStatus.textContent = `${reports.length} analyse(s) affichée(s).`;
+    } catch (error) {
+      historyStatus.textContent = error.message;
+      if (!currentUser) accountStatus.textContent = error.message;
+    }
+  }
+
+  async function openReport(id) {
+    if (busy || !currentUser) return;
+    setBusy(true, "history");
+    historyStatus.textContent = "Ouverture du rapport…";
+    try {
+      const report = await api(`/analyses/${id}`);
+      if (!isValidReport(report)) throw new Error("Le rapport reçu est illisible.");
+      renderReport(report);
+      historyStatus.textContent = "Rapport ouvert.";
+    } catch (error) {
+      historyStatus.textContent = error.message;
+      if (!currentUser) accountStatus.textContent = error.message;
+    } finally { setBusy(false); }
+  }
+
+  authForm.addEventListener("submit", async event => {
+    event.preventDefault();
+    if (busy) return;
+    const action = event.submitter?.value === "register" ? "register" : "login";
+    setBusy(true, "account");
+    accountStatus.textContent = action === "register" ? "Création du compte…" : "Connexion…";
+    try {
+      const user = await api(`/auth/${action}`, {
+        method: "POST", headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({email: document.getElementById("auth-email").value.trim(), password: document.getElementById("auth-password").value})
+      });
+      setUser(user);
+      await loadHistory();
+    } catch (error) { accountStatus.textContent = error.message; }
+    finally { setBusy(false); }
+  });
+
+  document.getElementById("logout-button").addEventListener("click", async () => {
+    if (busy) return;
+    setBusy(true, "account");
+    try {
+      await api("/auth/logout", {method: "POST"});
+      setUser(null);
+      accountStatus.textContent = "Vous êtes déconnecté.";
+      document.getElementById("auth-email").focus();
+    } catch (error) { accountStatus.textContent = error.message; }
+    finally { setBusy(false); }
+  });
+
+  document.getElementById("refresh-history").addEventListener("click", async () => {
+    if (busy || !currentUser) return;
+    setBusy(true, "history");
+    try { await loadHistory(); } finally { setBusy(false); }
+  });
+
+  emailButton.addEventListener("click", async () => {
+    if (busy || !currentReport || !currentUser) return;
+    setBusy(true, "email");
+    emailStatus.textContent = "Envoi du fichier en cours…";
+    try {
+      const data = await api(`/analyses/${currentReport.id}/email`, {method: "POST"});
+      currentReport.email_sent_at = data.email_sent_at;
+      emailStatus.textContent = data.message;
+    } catch (error) {
+      emailStatus.textContent = error.message;
+      if (!currentUser) accountStatus.textContent = error.message;
+    } finally { setBusy(false); }
+  });
+
+  async function initializeAccount() {
+    setBusy(true, "account");
+    try {
+      setUser(await api("/auth/me"));
+      await loadHistory();
+    } catch (error) {
+      setUser(null);
+      accountStatus.textContent = error.message;
+    } finally { setBusy(false); }
+  }
+  initializeAccount();
+
 })();

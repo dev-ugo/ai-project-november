@@ -25,7 +25,8 @@
       </a>
       <nav class="cc-app-nav" aria-label="Navigation principale">
         <a href="/" aria-current="page">Analyser un CSV</a>
-        <a href="#history">Historique</a>
+        <a href="#history">Mon historique</a>
+        <a href="#account">Mon compte</a>
         <a href="/design-system">Design system</a>
       </nav>
     </div>
@@ -43,6 +44,36 @@
         votre fichier depuis <a href="/docs">la documentation de l’API</a>.</div>
     </noscript>
 
+    <section class="cc-card cc-account" id="account" aria-labelledby="account-heading">
+      <div class="cc-card__head">
+        <h2 id="account-heading">Votre espace personnel</h2>
+        <span class="cc-badge cc-badge--info">Historique privé</span>
+      </div>
+      <div class="cc-card__body">
+        <p id="account-status" role="status" aria-live="polite">Vérification de votre session…</p>
+        <form id="auth-form" class="cc-auth-form" hidden>
+          <div class="cc-field">
+            <label class="cc-label" for="auth-email">Adresse e-mail</label>
+            <input class="cc-input" id="auth-email" type="email" autocomplete="username" maxlength="254" required>
+          </div>
+          <div class="cc-field">
+            <label class="cc-label" for="auth-password">Mot de passe</label>
+            <input class="cc-input" id="auth-password" type="password" autocomplete="current-password" minlength="12" maxlength="128" aria-describedby="password-help" required>
+            <p class="cc-help" id="password-help">Entre 12 et 128 caractères.</p>
+          </div>
+          <div class="cc-result-actions">
+            <button class="cc-btn cc-btn--primary" id="login-button" type="submit">Se connecter</button>
+            <button class="cc-btn cc-btn--secondary" id="register-button" type="submit" name="action" value="register">Créer mon compte</button>
+          </div>
+        </form>
+        <div id="account-connected" hidden>
+          <p>Connecté avec <strong id="account-email"></strong></p>
+          <button class="cc-btn cc-btn--quiet" id="logout-button" type="button">Se déconnecter</button>
+        </div>
+      </div>
+    </section>
+
+    <div id="private-workspace" hidden>
     <div class="cc-upload-layout">
       <section class="cc-card" aria-labelledby="upload-heading">
         <div class="cc-card__head">
@@ -208,6 +239,13 @@
         </div>
         <p class="cc-table-note" id="findings-limit" hidden></p>
       </div>
+      <div class="cc-card cc-card__body cc-correction" id="correction-panel">
+        <h3>Recevoir le CSV sans doublons</h3>
+        <p>Les doublons exacts seront supprimés. Les cellules vides resteront vides et les autres valeurs seront conservées.</p>
+        <p class="cc-help">Le fichier corrigé est conservé avec votre rapport. Sur votre demande, il est transmis à notre prestataire d’e-mail pour être envoyé à <strong id="email-recipient"></strong>.</p>
+        <button class="cc-btn cc-btn--primary" id="email-report-button" type="button">Recevoir le CSV corrigé par e-mail</button>
+        <p id="email-status" role="status" aria-live="polite"></p>
+      </div>
       <div class="cc-result-actions"><button class="cc-btn cc-btn--secondary" id="new-analysis-button"
           type="button">Analyser un autre fichier</button><span class="cc-help">Le rapport a été enregistré en
           base.</span></div>
@@ -217,7 +255,7 @@
       <div class="cc-result-heading">
         <div>
           <p class="cc-eyebrow">Rapports enregistrés</p>
-          <h2 id="history-heading">Historique des analyses</h2>
+          <h2 id="history-heading">Mon historique</h2>
         </div>
         <button class="cc-btn cc-btn--secondary" id="refresh-history" type="button" disabled>
           Actualiser
@@ -225,8 +263,7 @@
       </div>
 
       <p class="cc-help">
-        Historique public : les 50 dernières analyses et leurs résultats
-        sont accessibles à tous.
+        Vos 50 dernières analyses, accessibles uniquement depuis votre compte.
       </p>
 
       <p id="history-status" role="status" aria-live="polite"></p>
@@ -256,6 +293,8 @@
         </div>
       </div>
     </section>
+
+    </div>
 
     <footer class="cc-footer"><span>CSV Check · Un regard plus clair sur vos données</span><a href="/docs">Documentation
         de l’API <span aria-hidden="true">↗</span></a></footer>

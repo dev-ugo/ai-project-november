@@ -62,3 +62,14 @@
   .cc-results { margin-top: 2rem; }
   .cc-result-heading h2 { font-size: 1.35rem; }
 }
+
+/* Comptes, historique privé et envoi du fichier corrigé. */
+.cc-account { margin-bottom: 2rem; scroll-margin-top: 1rem; }
+.cc-account h2 { font-size: var(--cc-text-lg); }
+.cc-auth-form { display: grid; gap: 1rem; max-width: 520px; margin-top: 1rem; }
+.cc-auth-form .cc-result-actions { margin-top: 0; }
+#account-email, #email-recipient { overflow-wrap: anywhere; }
+#account-status, #history-status, #email-status { min-height: 1.6em; margin: .75rem 0; }
+.cc-correction { margin-top: 1.25rem; }
+.cc-correction p { margin: .75rem 0; }
+#history-body td:first-child { max-width: 260px; overflow-wrap: anywhere; }
