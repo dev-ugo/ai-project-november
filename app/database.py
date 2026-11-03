@@ -3,10 +3,15 @@
 import os
 
 from sqlalchemy import create_engine
+from sqlalchemy.engine import make_url
 from sqlalchemy.orm import DeclarativeBase
 
+database_url = make_url(
+    os.environ["DATABASE_URL"]
+).set(drivername="postgresql+psycopg")
+
 engine = create_engine(
-    os.environ["DATABASE_URL"],
+    database_url,
     pool_pre_ping=True,
     connect_args={"connect_timeout": 5},
 )

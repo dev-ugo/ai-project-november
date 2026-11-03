@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: csv-check-api
+    runtime: python
+    plan: free
+    region: frankfurt
+    buildCommand: pip install -r requirements.txt
+    startCommand: bash scripts/start.sh
+    healthCheckPath: /health
+    autoDeployTrigger: commit
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: csv-check-db
+          property: connectionString
+
+databases:
+  - name: csv-check-db
+    plan: free
+    region: frankfurt
+    databaseName: csvcheck
+    postgresMajorVersion: "17"
+    ipAllowList: []
