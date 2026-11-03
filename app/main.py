@@ -3,7 +3,7 @@
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 
-from app.routers import health
+from app.routers import health, analyses
 
 app = FastAPI(
     title="CSV Check",
@@ -12,6 +12,7 @@ app = FastAPI(
 )
 
 app.include_router(health.router)
+app.include_router(analyses.router)
 
 
 @app.get("/", include_in_schema=False)
